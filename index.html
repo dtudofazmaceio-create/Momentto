@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Amatic+SC:wght@700&family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Caveat:wght@500;700&family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Dancing+Script:wght@600;700&family=Fredoka:wght@500;700&family=Great+Vibes&family=Italiana&family=Lobster&family=Pacifico&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Righteous&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
 /* ============ BASE (sistema) ============ */
@@ -364,6 +364,92 @@ code{background:var(--soft);padding:2px 6px;border-radius:6px;font-size:.9em}
 .evpage h2,.evpage h3{color:var(--ink)}
 .evpage.tpl-polaroid{background-image:radial-gradient(rgba(120,90,50,.07) 1px,transparent 1.4px);background-size:7px 7px}
 
+
+/* ---- modelos adicionais ---- */
+.tpl-jardim{--bg:#f3f6ee;--card:#fff;--ink:#23331f;--muted:#6b7a63;--line:#dbe4d0;--soft:#e7eedc;--glass:rgba(243,246,238,.9);--tfont:'Cormorant Garamond',serif;--tweight:600;--tls:0;--ttr:none;--tile-r:16px}
+.evpage.tpl-jardim,.tpl-thumb.tpl-jardim{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='%234d7c3a' fill-opacity='.08'%3E%3Cpath d='M18 64c12-28 40-34 58-28-6 23-29 46-58 28z'/%3E%3Cpath d='M100 140c6-22 28-31 46-25-7 18-25 34-46 25z'/%3E%3Cpath d='M120 30c-4 16-18 24-30 22 3-14 14-26 30-22z'/%3E%3C/g%3E%3C/svg%3E");background-size:160px}
+.tpl-jardim .hero-title{font-style:italic;color:var(--accent)}
+.tpl-gala{--bg:#0e0d0b;--card:#181611;--ink:#f5ecd7;--muted:#b3a587;--line:#3a3222;--soft:#221e16;--glass:rgba(14,13,11,.88);--tfont:'Cinzel',serif;--tweight:600;--tls:.06em;--ttr:uppercase;--tile-r:0px;--shadow:0 10px 30px -14px rgba(0,0,0,.8)}
+.tpl-gala .g-masonry .tile{padding:5px;background:linear-gradient(135deg,#8a6a24,#f1d98a 40%,#b8913a 60%,#7a5a1c)}
+.tpl-gala .hero-title{background:linear-gradient(180deg,#f7e7b4,#c9a24a 60%,#8a6a24);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tpl-gala .fr{border-color:#c9a24a!important;outline-color:rgba(201,162,74,.5)!important}
+.tpl-neon{--bg:#07040f;--card:#120b22;--ink:#f3eaff;--muted:#a597c2;--line:#2b1d4a;--soft:#1a1030;--glass:rgba(7,4,15,.86);--tfont:'Righteous',sans-serif;--tweight:400;--tls:.03em;--ttr:uppercase;--tile-r:14px;--shadow:0 10px 30px -14px rgba(0,0,0,.8)}
+.tpl-neon .hero-title{color:#fff;text-shadow:0 0 6px var(--accent),0 0 22px var(--accent),0 0 60px var(--accent)}
+.tpl-neon .hero-cover::after{background:linear-gradient(180deg,rgba(7,4,15,.3),rgba(7,4,15,.2) 35%,var(--bg))}
+.tpl-neon .tile{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--accent) 65%,transparent),0 0 18px -4px var(--accent)}
+.evpage.tpl-neon,.tpl-thumb.tpl-neon{background-image:radial-gradient(circle at 15% 0%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 40%),radial-gradient(circle at 85% 100%,rgba(34,211,238,.14),transparent 45%);background-attachment:fixed}
+.tpl-tropical{--bg:#fbf6ec;--card:#fff;--ink:#1f3b3a;--muted:#5f7774;--line:#eadfc8;--soft:#f2e9d6;--glass:rgba(251,246,236,.9);--tfont:'Pacifico',cursive;--tweight:400;--tls:0;--ttr:none;--tile-r:22px}
+.tpl-tropical .hero-split .himg{border-radius:46% 54% 42% 58% / 52% 44% 56% 48%}
+.tpl-tropical .hero-title{color:var(--accent);line-height:1.1}
+@media(max-width:820px){.tpl-tropical .hero-split .himg{margin:0 auto;width:84%;aspect-ratio:1}.tpl-formatura .hero-split .himg{margin:0 10px 0 -10px}}
+.tpl-rustico{--bg:#efe6d6;--card:#fbf7ef;--ink:#3b2f22;--muted:#7d6c56;--line:#d9c9ae;--soft:#e5d8c1;--glass:rgba(239,230,214,.9);--tfont:'Amatic SC',cursive;--tweight:700;--tls:.02em;--ttr:none;--tile-r:3px}
+.evpage.tpl-rustico,.tpl-thumb.tpl-rustico{background-image:repeating-linear-gradient(0deg,rgba(120,90,50,.045) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(120,90,50,.035) 0 1px,transparent 1px 5px)}
+.tpl-rustico .hero-title{font-size:clamp(64px,11vw,140px)}
+.tpl-rustico .g-masonry .tile{padding:7px;background:#fffdf8;box-shadow:0 10px 22px -14px rgba(60,40,10,.5)}
+.tpl-boho{--bg:#f6ede4;--card:#fffaf5;--ink:#4a2e22;--muted:#93715f;--line:#ead6c5;--soft:#f0e0d1;--glass:rgba(246,237,228,.9);--tfont:'Italiana',serif;--tweight:400;--tls:.05em;--ttr:uppercase;--tile-r:16px}
+.tpl-boho .g-masonry .tile{border-radius:220px 220px 14px 14px}
+.tpl-boho .hero-arch .hero-title{color:var(--ink);font-size:clamp(48px,8vw,104px)}
+.tpl-infantil{--bg:#fffaf0;--card:#fff;--ink:#2d2a5a;--muted:#6f6b9a;--line:#f0e4c8;--soft:#fdf0d5;--glass:rgba(255,250,240,.9);--tfont:'Fredoka',sans-serif;--tweight:700;--tls:0;--ttr:none;--tile-r:22px}
+.evpage.tpl-infantil,.tpl-thumb.tpl-infantil{background-image:radial-gradient(circle,#ff6b6b 3px,transparent 3.5px),radial-gradient(circle,#4ecdc4 3px,transparent 3.5px),radial-gradient(circle,#ffd93d 3.5px,transparent 4px),radial-gradient(circle,#6c5ce7 2.5px,transparent 3px);background-size:170px 170px,130px 130px,210px 210px,110px 110px;background-position:10px 20px,70px 90px,120px 40px,40px 60px}
+.tpl-infantil .g-square{gap:12px}
+.tpl-infantil .g-square .tile{border:5px solid #ff6b6b}.tpl-infantil .g-square .tile:nth-child(4n+2){border-color:#4ecdc4}.tpl-infantil .g-square .tile:nth-child(4n+3){border-color:#ffd93d}.tpl-infantil .g-square .tile:nth-child(4n){border-color:#6c5ce7}
+.tpl-infantil .hero-title{color:var(--accent)}
+.tpl-princesa{--bg:#fbf4fb;--card:#fff;--ink:#4a2a55;--muted:#9a7aa5;--line:#efdcf1;--soft:#f5e6f6;--glass:rgba(251,244,251,.9);--tfont:'Playfair Display',serif;--tweight:700;--tls:-.01em;--ttr:none;--tile-r:20px}
+.evpage.tpl-princesa,.tpl-thumb.tpl-princesa{background-image:radial-gradient(circle,rgba(168,85,199,.25) 1.4px,transparent 2px),radial-gradient(circle,rgba(236,72,153,.18) 1px,transparent 1.6px);background-size:46px 46px,29px 29px;background-position:0 0,13px 17px}
+.tpl-princesa .hero-centered::after{background:radial-gradient(ellipse at center,rgba(74,42,85,.3),rgba(74,42,85,.6))}
+.tpl-formatura{--bg:#f5f6fa;--card:#fff;--ink:#14213d;--muted:#5d6886;--line:#dfe3ee;--soft:#e9ecf4;--glass:rgba(245,246,250,.92);--tfont:'Playfair Display',serif;--tweight:800;--tls:-.02em;--ttr:none;--tile-r:6px}
+.tpl-formatura .hero-split .himg{box-shadow:16px 16px 0 #d4a72c}
+.tpl-formatura .eyebrow{color:#b7861a}
+.tpl-executivo{--bg:#f4f5f7;--card:#fff;--ink:#101828;--muted:#667085;--line:#e4e7ec;--soft:#eef0f3;--glass:rgba(244,245,247,.92);--tfont:'DM Sans',sans-serif;--tweight:700;--tls:-.05em;--ttr:none;--tile-r:10px}
+.tpl-editorial{--bg:#fbfaf7;--card:#fff;--ink:#111;--muted:#6d6a64;--line:#e2ddd2;--soft:#efece5;--glass:rgba(251,250,247,.92);--tfont:'Playfair Display',serif;--tweight:900;--tls:-.035em;--ttr:none;--tile-r:0px;--shadow:none}
+.tpl-editorial .g-masonry .cap,.tpl-editorial .g-masonry .cap:empty{display:block;position:static;opacity:1;background:none;color:var(--muted);padding:6px 0 2px;font-style:italic;font-weight:500;border-radius:0}
+.tpl-editorial .g-masonry .tile{background:none}
+.tpl-vintage{--bg:#f4ecdc;--card:#fffaf0;--ink:#2f3b3a;--muted:#6f7b74;--line:#e0d3b8;--soft:#eadfc7;--glass:rgba(244,236,220,.9);--tfont:'Abril Fatface',serif;--tweight:400;--tls:.01em;--ttr:none;--tile-r:3px}
+.tpl-vintage .ph img,.tpl-vintage .himg{filter:sepia(.28) saturate(.9) contrast(1.03)}
+.evpage.tpl-vintage,.tpl-thumb.tpl-vintage{background-image:radial-gradient(rgba(90,70,40,.08) 1px,transparent 1.3px);background-size:5px 5px}
+.tpl-vintage .hero-title{color:var(--accent)}
+.tpl-aquarela{--bg:#fdfafc;--card:#fff;--ink:#4f3a4a;--muted:#957d90;--line:#f1e3ec;--soft:#f6ecf2;--glass:rgba(253,250,252,.88);--tfont:'Dancing Script',cursive;--tweight:700;--tls:0;--ttr:none;--tile-r:26px}
+.evpage.tpl-aquarela,.tpl-thumb.tpl-aquarela{background-image:radial-gradient(circle at 8% 18%,rgba(255,182,193,.42),transparent 28%),radial-gradient(circle at 92% 12%,rgba(173,216,230,.42),transparent 26%),radial-gradient(circle at 82% 78%,rgba(221,160,221,.35),transparent 30%),radial-gradient(circle at 18% 88%,rgba(255,223,186,.45),transparent 28%);background-attachment:fixed}
+.tpl-aquarela .hero-title{color:var(--accent)}
+.tpl-noite{--bg:#0b1026;--card:#141a36;--ink:#eef1ff;--muted:#a3abd0;--line:#252d55;--soft:#1a2244;--glass:rgba(11,16,38,.86);--tfont:'Cinzel',serif;--tweight:600;--tls:.05em;--ttr:uppercase;--tile-r:12px;--shadow:0 10px 30px -14px rgba(0,0,0,.8)}
+.evpage.tpl-noite,.tpl-thumb.tpl-noite{background-image:radial-gradient(1.2px 1.2px at 20px 30px,#fff 50%,transparent 51%),radial-gradient(1px 1px at 90px 80px,rgba(255,255,255,.75) 50%,transparent 51%),radial-gradient(1.6px 1.6px at 150px 20px,rgba(255,255,255,.95) 50%,transparent 51%),radial-gradient(1px 1px at 60px 150px,rgba(255,255,255,.6) 50%,transparent 51%),radial-gradient(1.3px 1.3px at 170px 130px,#fff 50%,transparent 51%),radial-gradient(circle at 70% 0%,rgba(91,110,255,.25),transparent 50%);background-size:200px 200px,200px 200px,200px 200px,200px 200px,200px 200px,100% 100%}
+.tpl-celeste{--bg:#f4f8fc;--card:#fff;--ink:#1d3557;--muted:#6a7f99;--line:#dbe6f2;--soft:#e8f0f8;--glass:rgba(244,248,252,.9);--tfont:'Cormorant Garamond',serif;--tweight:600;--tls:0;--ttr:none;--tile-r:16px}
+.evpage.tpl-celeste,.tpl-thumb.tpl-celeste{background-image:radial-gradient(ellipse at 10% 10%,rgba(255,255,255,.95),transparent 30%),radial-gradient(ellipse at 90% 30%,rgba(196,221,245,.6),transparent 35%),radial-gradient(ellipse at 30% 90%,rgba(210,228,247,.6),transparent 35%);background-attachment:fixed}
+.tpl-celeste .hero-title{font-style:italic;color:var(--accent)}
+.tpl-junina{--bg:#fff7e8;--card:#fff;--ink:#3d2410;--muted:#8a6a4e;--line:#f1dcb8;--soft:#fbe9c9;--glass:rgba(255,247,232,.92);--tfont:'Lobster',cursive;--tweight:400;--tls:0;--ttr:none;--tile-r:4px}
+.tpl-junina #app::before,.tpl-thumb.tpl-junina::before{content:"";display:block;height:46px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='46' viewBox='0 0 200 46'%3E%3Cpath d='M0 5 Q100 13 200 5' stroke='%237a5230' stroke-width='1.5' fill='none'/%3E%3Cpolygon points='4,6 34,8 34,38 19,30 4,38' fill='%23e63946'/%3E%3Cpolygon points='44,9 74,10 74,40 59,32 44,40' fill='%23f4a261'/%3E%3Cpolygon points='84,10 114,10 114,40 99,32 84,40' fill='%232a9d8f'/%3E%3Cpolygon points='124,10 154,9 154,39 139,31 124,39' fill='%23e9c46a'/%3E%3Cpolygon points='164,8 194,6 194,36 179,28 164,36' fill='%23457b9d'/%3E%3C/svg%3E") repeat-x;background-size:200px 46px}
+.tpl-thumb.tpl-junina::before{height:20px;background-size:90px 20px;margin:-8px -8px 0}
+.tpl-junina .hero-title{color:var(--accent)}
+.tpl-noir{--bg:#0a0a0a;--card:#151515;--ink:#f5f5f5;--muted:#9a9a9a;--line:#2a2a2a;--soft:#1b1b1b;--glass:rgba(10,10,10,.88);--tfont:'Playfair Display',serif;--tweight:700;--tls:-.02em;--ttr:none;--tile-r:0px;--shadow:none}
+.tpl-noir .ph img,.tpl-noir .himg{filter:grayscale(1) contrast(1.08)}
+.tpl-noir .tile:hover .ph img{filter:none}
+/* capa "moldura" */
+.hero-frame{padding:calc(54px + var(--sat)) 0 26px;text-align:center}
+.hero-frame .hero-title{font-size:clamp(42px,8vw,98px);margin:8px auto 10px}
+.hero-frame .fr{max-width:900px;margin:22px auto 26px;padding:10px;border:1.5px solid color-mix(in srgb,var(--accent) 70%,transparent);outline:1px solid color-mix(in srgb,var(--accent) 40%,transparent);outline-offset:7px}
+.hero-frame .himg{aspect-ratio:16/9;background:var(--accent) center/cover}
+.hero-frame .hero-meta,.hero-frame .hero-actions{justify-content:center}.hero-frame .hero-desc{margin-left:auto;margin-right:auto}
+.hero-frame .orn{color:var(--accent)}
+/* capa "revista" */
+.hero-mag{padding:calc(30px + var(--sat)) 0 20px}
+.mag-top{display:flex;justify-content:space-between;gap:12px;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:8px 0;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+.hero-mag .hero-title{font-size:clamp(54px,13vw,184px);line-height:.86;margin:0 0 18px}
+.hero-mag .himg{aspect-ratio:21/9;background:var(--accent) center/cover}
+.mag-bot{display:grid;grid-template-columns:1.3fr 1fr;gap:30px;align-items:start;padding-top:18px;border-bottom:1px solid var(--line);padding-bottom:18px}
+.mag-bot>div:last-child{text-align:right}.mag-bot .hero-actions{justify-content:flex-end}
+@media(max-width:820px){.hero-mag .himg{aspect-ratio:4/3}.mag-bot{grid-template-columns:1fr;gap:6px}.mag-bot>div:last-child{text-align:left}.mag-bot .hero-actions{justify-content:flex-start}.mag-top span:last-child{display:none}}
+/* miniaturas das novas capas */
+.th-frame .tt-hero{background:none;border:1.5px solid var(--accent);justify-content:center;align-items:center;padding:4px}
+.th-frame .tt-t,.th-magazine .tt-t{color:var(--ink)}
+.th-magazine .tt-hero{background:none;border-top:2.5px solid var(--ink);border-radius:0;padding:4px 0;align-items:flex-start;height:auto}
+.th-magazine .tt-t{font-size:22px}
+.th-magazine .tt-g{grid-template-columns:2fr 1fr 1fr}
+.tsug{font-style:normal;font-size:10.5px;font-weight:700;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);padding:1px 6px;border-radius:99px;vertical-align:2px}
+.tpl-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+/* avisos em modelos escuros */
+.tdark .notice{background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--ink)}.tdark .notice p{color:var(--muted)}
+.tdark .notice.urgent{background:#3a2a10;border-color:#7a5212;color:#fde7c4}.tdark .notice.urgent p{color:#f3d9a8}
+.tdark .notice.arch{background:#14233f;border-color:#2e4a80;color:#dbe6ff}.tdark .notice.arch p{color:#b8c6e3}
 /* heróis */
 .hbg{position:absolute;inset:-2px;background:var(--accent) center/cover no-repeat}
 .hbg.noimg,.himg.noimg{background-image:radial-gradient(circle at 15% 25%,color-mix(in srgb,var(--accent) 55%,#fff) 0,transparent 45%),radial-gradient(circle at 85% 70%,color-mix(in srgb,var(--accent) 75%,#000) 0,transparent 55%),linear-gradient(150deg,var(--accent),color-mix(in srgb,var(--accent) 30%,#120f14))}
@@ -601,13 +687,32 @@ const TIPOS = {
   corporativo: { nome: 'Corporativo',    emoji: '💼', host: 'Organização',    previa: 'Bastidores',   tpl: 'minimal',   cor: '#27272a', campo: 'Empresa',            ph: 'Acme Ltda.' },
   outro:       { nome: 'Outro',          emoji: '✨', host: 'Anfitriões',     previa: 'Prévia',       tpl: 'moderno',   cor: '#e11d48', campo: 'Anfitriões',         ph: '' },
 };
+const FONTS_URL = 'https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Amatic+SC:wght@700&family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Caveat:wght@500;700&family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Dancing+Script:wght@600;700&family=Fredoka:wght@500;700&family=Great+Vibes&family=Italiana&family=Lobster&family=Pacifico&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Righteous&display=swap';
+/* Modelos do site. tags = tipos de evento para os quais o modelo é sugerido; cor = cor de destaque sugerida. */
 const TEMPLATES = {
-  moderno:   { nome: 'Moderno',   desc: 'Capa em tela cheia e mosaico',      hero: 'cover',    grid: 'mosaic' },
-  classico:  { nome: 'Clássico',  desc: 'Serifado, elegante, centralizado',  hero: 'centered', grid: 'masonry' },
-  romantico: { nome: 'Romântico', desc: 'Tons suaves, arco e caligrafia',    hero: 'arch',     grid: 'masonry' },
-  festa:     { nome: 'Festa',     desc: 'Escuro e vibrante, clima de pista', hero: 'cover',    grid: 'mosaic' },
-  minimal:   { nome: 'Minimal',   desc: 'Limpo, grade quadrada',             hero: 'split',    grid: 'square' },
-  polaroid:  { nome: 'Polaroid',  desc: 'Fotos reveladas, escrita à mão',    hero: 'polaroid', grid: 'polaroid' },
+  moderno:   { nome: 'Moderno',         desc: 'Capa em tela cheia e mosaico',            hero: 'cover',    grid: 'mosaic',   cor: '#e11d48', font: "'Bricolage Grotesque'", tags: ['casamento', 'debutante', 'aniversario', 'formatura', 'cha', 'corporativo', 'outro'] },
+  classico:  { nome: 'Clássico',        desc: 'Serifado, elegante, centralizado',        hero: 'centered', grid: 'masonry',  cor: '#b7791f', font: "'Cormorant Garamond'", tags: ['casamento', 'formatura', 'corporativo'] },
+  romantico: { nome: 'Romântico',       desc: 'Tons suaves, arco e caligrafia',          hero: 'arch',     grid: 'masonry',  cor: '#db2777', font: "'Great Vibes'", script: 1, tags: ['casamento', 'cha', 'debutante'] },
+  festa:     { nome: 'Festa',           desc: 'Escuro e vibrante, clima de pista',       hero: 'cover',    grid: 'mosaic',   cor: '#db2777', font: "'Anton'", upper: 1, dark: 1, tags: ['debutante', 'aniversario', 'formatura'] },
+  minimal:   { nome: 'Minimal',         desc: 'Limpo, grade quadrada',                   hero: 'split',    grid: 'square',   cor: '#27272a', font: "'DM Sans'", tags: ['corporativo', 'outro', 'formatura'] },
+  polaroid:  { nome: 'Polaroid',        desc: 'Fotos reveladas, escrita à mão',          hero: 'polaroid', grid: 'polaroid', cor: '#c2410c', font: "'Caveat'", script: 1, tags: ['aniversario', 'outro', 'cha'] },
+  jardim:    { nome: 'Jardim',          desc: 'Verde, folhagens e arco botânico',        hero: 'arch',     grid: 'masonry',  cor: '#4d7c3a', font: "'Cormorant Garamond'", tags: ['casamento', 'cha', 'aniversario'] },
+  gala:      { nome: 'Gala',            desc: 'Preto e dourado, molduras de luxo',       hero: 'frame',    grid: 'masonry',  cor: '#c9a24a', font: "'Cinzel'", upper: 1, dark: 1, tags: ['casamento', 'debutante', 'formatura', 'corporativo'] },
+  neon:      { nome: 'Neon',            desc: 'Balada com brilho neon',                  hero: 'cover',    grid: 'mosaic',   cor: '#d946ef', font: "'Righteous'", upper: 1, dark: 1, tags: ['debutante', 'aniversario', 'formatura', 'outro'] },
+  tropical:  { nome: 'Tropical',        desc: 'Praia, areia e cores de verão',           hero: 'split',    grid: 'mosaic',   cor: '#0d9488', font: "'Pacifico'", script: 1, tags: ['aniversario', 'casamento', 'outro', 'formatura'] },
+  rustico:   { nome: 'Rústico',         desc: 'Linho, madeira e letras à mão',           hero: 'polaroid', grid: 'masonry',  cor: '#8b5e34', font: "'Amatic SC'", tags: ['casamento', 'aniversario', 'outro'] },
+  boho:      { nome: 'Boho',            desc: 'Terracota, arcos e estilo boêmio',        hero: 'arch',     grid: 'masonry',  cor: '#c0663f', font: "'Italiana'", upper: 1, tags: ['casamento', 'cha', 'aniversario'] },
+  infantil:  { nome: 'Infantil',        desc: 'Confete, cores alegres e cantos redondos', hero: 'polaroid', grid: 'square',  cor: '#f59e0b', font: "'Fredoka'", tags: ['aniversario', 'cha'] },
+  princesa:  { nome: 'Princesa',        desc: 'Lilás, brilhos e toque de conto de fadas', hero: 'centered', grid: 'masonry', cor: '#a855c7', font: "'Playfair Display'", tags: ['debutante', 'aniversario', 'cha'] },
+  formatura: { nome: 'Formatura',       desc: 'Azul-marinho e dourado acadêmico',        hero: 'split',    grid: 'square',   cor: '#1e3a8a', font: "'Playfair Display'", tags: ['formatura', 'corporativo'] },
+  executivo: { nome: 'Executivo',       desc: 'Corporativo, sóbrio e organizado',        hero: 'magazine', grid: 'square',   cor: '#2563eb', font: "'DM Sans'", tags: ['corporativo', 'formatura'] },
+  editorial: { nome: 'Editorial',       desc: 'Capa de revista, títulos gigantes',       hero: 'magazine', grid: 'masonry',  cor: '#111111', font: "'Playfair Display'", tags: ['casamento', 'debutante', 'corporativo', 'outro'] },
+  vintage:   { nome: 'Vintage',         desc: 'Retrô, papel antigo e tons de filme',     hero: 'polaroid', grid: 'polaroid', cor: '#0f766e', font: "'Abril Fatface'", tags: ['aniversario', 'casamento', 'outro'] },
+  aquarela:  { nome: 'Aquarela',        desc: 'Manchas em tons pastel e caligrafia',     hero: 'arch',     grid: 'masonry',  cor: '#e07a9a', font: "'Dancing Script'", script: 1, tags: ['cha', 'debutante', 'casamento', 'aniversario'] },
+  noite:     { nome: 'Noite Estrelada', desc: 'Azul profundo com estrelas',              hero: 'frame',    grid: 'mosaic',   cor: '#8b9cff', font: "'Cinzel'", upper: 1, dark: 1, tags: ['casamento', 'debutante', 'formatura'] },
+  celeste:   { nome: 'Celeste',         desc: 'Azul-claro e nuvens, ideal p/ batizado',  hero: 'frame',    grid: 'masonry',  cor: '#5b8bd0', font: "'Cormorant Garamond'", tags: ['cha', 'casamento'] },
+  junina:    { nome: 'Arraiá',          desc: 'Bandeirinhas e clima de festa junina',    hero: 'polaroid', grid: 'polaroid', cor: '#e63946', font: "'Lobster'", script: 1, tags: ['aniversario', 'outro', 'corporativo'] },
+  noir:      { nome: 'Noir',            desc: 'Preto e branco, fotos ganham cor ao tocar', hero: 'magazine', grid: 'square', cor: '#e5e5e5', font: "'Playfair Display'", dark: 1, tags: ['corporativo', 'casamento', 'outro', 'formatura'] },
 };
 const GRADIENTS = {
   aurora:    { nome: 'Aurora',     css: 'linear-gradient(135deg,#a8edea,#fed6e3)' },
@@ -1212,7 +1317,7 @@ function applySysLook(accentOverride) {
 function applyEventLook(m, assets) {
   document.documentElement.removeAttribute('data-theme');
   const t = TEMPLATES[m.template] ? m.template : 'moderno';
-  document.body.className = 'evpage tpl-' + t;
+  document.body.className = 'evpage tpl-' + t + (TEMPLATES[t].dark ? ' tdark' : '');
   setAccent(m.cor);
   setPageBg(m.fundo, assets.fundo);
   themeColor(getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#111');
@@ -1588,6 +1693,8 @@ function heroHTML(m, upHref) {
     case 'arch': return `<section class="hero-arch"><div class="wrap"><div><p class="eyebrow">${eyebrow}</p>${title}${metaL}${desc}${cd}${acts(false)}</div><div class="himg" data-asset="capa"></div></div></section>`;
     case 'split': return `<section class="hero-split"><div class="wrap"><div><p class="eyebrow">${eyebrow}</p>${title}${metaL}${desc}${cd}${acts(false)}</div><div class="himg" data-asset="capa"></div></div></section>`;
     case 'polaroid': return `<section class="hero-polaroid"><div class="wrap"><div class="pframe"><div class="himg" data-asset="capa"></div><span>${esc(fmtDate(m.data) || T.nome)}</span></div><div><p class="eyebrow">${eyebrow}</p>${title}${metaL}${desc}${cd}${acts(false)}</div></div></section>`;
+    case 'frame': return `<section class="hero-frame"><div class="wrap"><p class="orn">${eyebrow}</p>${title}<div class="fr"><div class="himg" data-asset="capa"></div></div>${metaL}${desc}${cd}${acts(false)}</div></section>`;
+    case 'magazine': return `<section class="hero-mag"><div class="wrap"><div class="mag-top"><span>${eyebrow}</span><span>${esc(fmtDate(m.data) || 'Álbum de fotos')}</span></div>${title}<div class="himg" data-asset="capa"></div><div class="mag-bot"><div>${metaL}${desc}</div><div>${cd}${acts(false)}</div></div></div></section>`;
     default: return `<section class="hero-cover"><div class="hbg" data-asset="capa"></div><div class="wrap hero-in"><p class="eyebrow light">${eyebrow}</p>${title}${metaL}${desc}${cd}${acts(true)}</div></section>`;
   }
 }
@@ -1825,12 +1932,12 @@ function printCard(meta, url, kind) {
   const w = window.open('', '_blank');
   if (!w) return toast('Permita pop-ups para imprimir.', 'err');
   const up = kind === 'up', c = meta.cor, t = TEMPLATES[meta.template] ? meta.template : 'moderno';
-  const tf = { moderno: "'Bricolage Grotesque'", classico: "'Cormorant Garamond'", romantico: "'Great Vibes'", festa: "'Anton'", minimal: "'DM Sans'", polaroid: "'Caveat'" }[t];
+  const tf = TEMPLATES[t].font;
   w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(meta.nome)} – QR code</title>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Caveat:wght@700&family=Cormorant+Garamond:ital,wght@1,600&family=DM+Sans:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+  <link href="${FONTS_URL}" rel="stylesheet">
   <style>@page{size:A5;margin:0}*{box-sizing:border-box}body{margin:0;font-family:'DM Sans',sans-serif;color:#17161a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .p{width:148mm;height:210mm;margin:0 auto;padding:16mm 14mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;border-top:7mm solid ${c}}
-  .n{font-family:${tf},serif;font-size:${t === 'romantico' ? '34pt' : '24pt'};line-height:1.05;margin:0 0 3mm;color:${c};${t === 'festa' ? 'text-transform:uppercase;' : ''}${t === 'classico' ? 'font-style:italic;' : ''}}
+  .n{font-family:${tf},serif;font-size:${TEMPLATES[t].script ? '34pt' : '24pt'};line-height:1.05;margin:0 0 3mm;color:${c};${TEMPLATES[t].upper ? 'text-transform:uppercase;' : ''}${t === 'classico' ? 'font-style:italic;' : ''}}
   h1{font-family:'Bricolage Grotesque',sans-serif;font-size:24pt;line-height:1.05;letter-spacing:-.02em;margin:2mm 0 0}
   .qr{width:92mm;height:92mm;padding:4mm;border:1.5mm solid ${c};border-radius:8mm}.qr svg{width:100%;height:100%}
   h2{font-family:'Bricolage Grotesque',sans-serif;font-size:17pt;margin:0 0 2mm}p{margin:0;font-size:11pt;color:#555}.s{font-size:10pt;color:#666;margin-top:2mm}</style></head>
@@ -1938,7 +2045,7 @@ function personalizeView(box, sync, role) {
   const T = TIPOS[w.tipo];
   box.innerHTML = `<div class="pz">
     <section class="card pz-sec"><h3>Modelo do site</h3><p class="muted">Escolha o visual do álbum. Dá para trocar a qualquer momento.</p>
-      <div class="tpl-grid">${Object.entries(TEMPLATES).map(([id, t]) => `<button type="button" class="tplc ${w.template === id ? 'on' : ''}" data-tpl="${id}"><div class="tpl-thumb tpl-${id} th-${t.hero}"><div class="tt-hero"><span class="tt-t">${esc((w.anfitrioes || 'Ana & Pedro').slice(0, 16))}</span></div><div class="tt-g tg-${t.grid}">${'<i></i>'.repeat(8)}</div></div><b>${t.nome}</b><span>${t.desc}</span></button>`).join('')}</div></section>
+      <div class="seg" id="tplF"></div><div class="tpl-grid" id="tplG"></div></section>
     <section class="card pz-sec"><h3>Cor de destaque</h3><p class="muted">Usada em botões, títulos e detalhes.</p>${swatchesHTML(w.cor, 'pzcor')}</section>
     <section class="card pz-sec"><h3>Capa</h3><p class="muted">A imagem principal do topo do site.</p><div class="cover-prev" id="pzCover"></div>
       <div class="row wrap-row"><label class="btn sm">${ic('upload', 16)} Enviar imagem<input class="sr" type="file" accept="image/*" id="pzCoverIn"></label>${sync.list('previa').length ? `<button class="btn sm ghost" id="pzFromPrev">${ic('images', 16)} Escolher da ${esc(w.albumPrevia.toLowerCase())}</button>` : ''}<button class="btn sm ghost" id="pzCoverRm">${ic('trash', 16)} Remover</button></div></section>
@@ -1964,6 +2071,15 @@ function personalizeView(box, sync, role) {
       ${sw('host.moderar', 'Anfitriões podem moderar fotos e recados', 'Aprovar e ocultar o que os convidados enviam.')}</section>` : ''}
     <div class="savebar"><button class="btn lg" id="pzSave">${ic('check')} Salvar alterações</button><a class="btn lg ghost" href="${esc(L.e)}" target="_blank" rel="noopener">${ic('ext')} Ver site</a></div>
   </div>`;
+  let tplFilter = 'sug';
+  const drawTpls = () => {
+    const T2 = TIPOS[w.tipo], all = Object.entries(TEMPLATES), sug = all.filter(([id, t]) => t.tags.includes(w.tipo) || id === w.template);
+    const lists = { sug, claros: all.filter(([, t]) => !t.dark), escuros: all.filter(([, t]) => t.dark), todos: all };
+    $('#tplF', box).innerHTML = [['sug', `Sugeridos para ${T2.nome}`], ['todos', 'Todos'], ['claros', 'Claros'], ['escuros', 'Escuros']].map(([k, l]) => `<button type="button" data-tf="${k}" class="${tplFilter === k ? 'on' : ''}">${esc(l)} <small>${lists[k].length}</small></button>`).join('');
+    const name = esc((w.anfitrioes || w.nome || 'Ana & Pedro').slice(0, 18));
+    $('#tplG', box).innerHTML = lists[tplFilter].map(([id, t]) => `<button type="button" class="tplc ${w.template === id ? 'on' : ''}" data-tpl="${id}"><div class="tpl-thumb tpl-${id} th-${t.hero}" style="--accent:${t.cor};--accent-ink:${inkFor(t.cor)}"><div class="tt-hero"><span class="tt-t">${name}</span></div><div class="tt-g tg-${t.grid}">${'<i></i>'.repeat(8)}</div></div><b>${t.nome}${t.tags.includes(w.tipo) && tplFilter !== 'sug' ? ' <em class="tsug">sugerido</em>' : ''}</b><span>${t.desc}</span></button>`).join('');
+  };
+  drawTpls();
   const coverPrev = () => { const el = $('#pzCover', box), d = cur('capa'); el.style.backgroundImage = d ? `url("${d}")` : ''; el.classList.toggle('noimg', !d); };
   const bgOpts = () => {
     const f = w.fundo, o = $('#pzBgO', box);
@@ -1991,9 +2107,11 @@ function personalizeView(box, sync, role) {
     const p = k.split('.'); let o = w; while (p.length > 1) o = o[p.shift()]; o[p[0]] = v;
   };
   box.addEventListener('input', setField);
-  box.addEventListener('change', e => { setField(e); if (e.target.dataset?.k === 'tipo') { const T2 = TIPOS[w.tipo]; w.hostLabel = T2.host; $('#pz_hostLabel', box).value = T2.host; } });
+  box.addEventListener('change', e => { setField(e); if (e.target.dataset?.k === 'tipo') { const T2 = TIPOS[w.tipo]; w.hostLabel = T2.host; $('#pz_hostLabel', box).value = T2.host; drawTpls(); } });
   box.addEventListener('click', e => {
     const t = e.target.closest('[data-tpl]');
+    const tf = e.target.closest('[data-tf]'); if (tf) { tplFilter = tf.dataset.tf; drawTpls(); return; }
+    if (t) { const sugCor = TEMPLATES[t.dataset.tpl].cor; w.cor = sugCor; setAccent(sugCor); const swb = $('[data-sw="pzcor"]', box); if (swb) { $$('.sw', swb).forEach(x => x.classList.toggle('on', x.dataset.c === sugCor)); $('input[type=color]', swb).value = sugCor; } }
     if (t) { w.template = t.dataset.tpl; $$('[data-tpl]', box).forEach(x => x.classList.toggle('on', x === t)); const p = $('#pzBgP', box); if (p) p.className = 'bg-prev tpl-' + w.template; paintBgPrev(); }
     const bt = e.target.closest('[data-bt]');
     if (bt) { w.fundo.tipo = bt.dataset.bt; if (w.fundo.tipo === 'gradiente' && !GRADIENTS[w.fundo.valor]) w.fundo.valor = 'champagne'; if (w.fundo.tipo === 'cor' && !/^#/.test(w.fundo.valor)) w.fundo.valor = '#f5efe6'; $$('[data-bt]', box).forEach(x => x.classList.toggle('on', x === bt)); bgOpts(); }
