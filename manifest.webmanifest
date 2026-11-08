@@ -1,0 +1,22 @@
+{
+  "name": "FotoEvento — álbum de fotos do evento",
+  "short_name": "FotoEvento",
+  "description": "Álbum colaborativo de fotos para casamentos, 15 anos e eventos.",
+  "lang": "pt-BR",
+  "start_url": "./?app=1",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#f5f3ef",
+  "theme_color": "#17161a",
+  "categories": ["photo", "lifestyle", "social"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Meus eventos", "url": "./#/admin", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
