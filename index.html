@@ -250,6 +250,23 @@ label.f{display:block;font-weight:600;font-size:14px;margin:0 0 7px}
 .hello h2{font-size:clamp(28px,5vw,42px);margin-bottom:4px}
 .hello.noimg{background-image:radial-gradient(circle at 20% 20%,color-mix(in srgb,var(--accent) 60%,#fff),transparent 55%),linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 40%,#000))}
 
+.short-card{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:14px;flex-wrap:wrap}
+.sc-ic{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 13%,var(--card));color:var(--accent);flex:none}
+.sc-body{flex:1;min-width:200px}.sc-body b{font-size:15px}
+.slug-chip{display:inline-block;font-weight:700;color:var(--ink);background:var(--soft);padding:2px 9px;border-radius:8px;font-size:13px}
+.short-url{display:flex;align-items:center;gap:7px;font-weight:700;font-size:15px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 9%,var(--card));color:var(--ink);margin-bottom:10px;word-break:break-all}
+.short-url svg{color:#079455;flex:none}
+.slug-in{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.slug-in:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 16%,transparent)}
+.slug-in span{padding:0 4px 0 14px;color:var(--muted);font-weight:600;white-space:nowrap}
+.slug-in input{border:0;box-shadow:none!important;padding-left:2px;font-weight:700}
+.slug-prev{display:flex;flex-direction:column;gap:6px;background:var(--soft);border-radius:14px;padding:12px 14px}
+.slug-prev div{display:flex;justify-content:space-between;gap:10px;font-size:13px;flex-wrap:wrap}.slug-prev span{color:var(--muted)}.slug-prev b{word-break:break-all}
+.prov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:14px}
+.prov{border:2px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;text-align:left}
+.prov.on{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent)}
+.prov b{display:block;font-size:15px}.prov span{display:block;font-size:12.5px;color:var(--muted);line-height:1.35;margin-top:3px}
+.prov .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;background:#dcfae6;color:#067647;margin-top:6px}
 /* personalizar */
 .pz{display:flex;flex-direction:column;gap:16px;max-width:900px}
 .pz-sec{padding:20px}
@@ -581,7 +598,7 @@ const GRADIENTS = {
 };
 
 const app = document.getElementById('app');
-const state = { cfg: {}, cleanup: [], syncs: new Map(), look: null };
+const state = { cfg: {}, cleanup: [], syncs: new Map(), look: null, short: null };
 
 /* ---------------- utilidades ---------------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -713,6 +730,7 @@ const ICONS = {
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   inst: '<path d="M12 3v12M7 10l5 5 5-5"/><rect x="3" y="17" width="18" height="4" rx="1"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
 };
 const ic = (n, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
 
@@ -834,6 +852,7 @@ function normalizeMeta(m = {}) {
     host: { personalizar: m.host?.personalizar !== false, moderar: m.host?.moderar !== false },
     ocultas: Array.isArray(m.ocultas) ? m.ocultas : [], aprovadas: Array.isArray(m.aprovadas) ? m.aprovadas : [],
     criado: m.criado || new Date().toISOString(), capa: m.capa || '',
+    curtos: m.curtos && typeof m.curtos === 'object' ? m.curtos : null,
   };
 }
 function itemStatus(meta, it) {
@@ -845,6 +864,109 @@ function itemStatus(meta, it) {
 const urlCache = new Map();
 function itemURL(p) { if (!urlCache.has(p.key)) urlCache.set(p.key, URL.createObjectURL(p.blob)); return urlCache.get(p.key); }
 function links(id, tok, base) { const k = encTok(tok); return { up: `${base}#/up/${id}/${k}`, e: `${base}#/e/${id}/${k}`, h: `${base}#/h/${id}/${k}` }; }
+/** Links públicos: usa a versão curta (se já criada para este mesmo destino) e cai no link completo se não houver. */
+function pubLinks(sync, base) {
+  const L = links(sync.id, sync.token, base), c = (sync.meta && sync.meta.curtos) || {}, out = { long: L };
+  for (const k of ['up', 'e', 'h']) {
+    const s = c[k];
+    out[k] = s && s.url && s.long && s.long.split('#')[1] === L[k].split('#')[1] ? s.url : L[k];
+  }
+  return out;
+}
+function livePub(sync, baseFn) { return { get up() { return pubLinks(sync, baseFn()).up; }, get e() { return pubLinks(sync, baseFn()).e; }, get h() { return pubLinks(sync, baseFn()).h; } }; }
+
+/* ---------------- Encurtadores de link (grátis) ---------------- */
+const SHORTENERS = {
+  off:     { nome: 'Desligado', host: '' },
+  isgd:    { nome: 'is.gd', host: 'is.gd', desc: 'Grátis, sem cadastro. Endereço personalizado de 5 a 30 caracteres.' },
+  vgd:     { nome: 'v.gd', host: 'v.gd', desc: 'Igual ao is.gd, outro domínio.' },
+  shortio: { nome: 'Short.io', host: '', desc: 'Grátis até 1.000 links. Permite usar seu próprio domínio (ex.: fotos.seudominio.com.br). Precisa de cadastro e chave pública.' },
+  tinyurl: { nome: 'TinyURL', host: 'tinyurl.com', desc: 'Grátis com cadastro e token de API. Cota mensal pequena na API.' },
+};
+function defaultShort() { return { provider: 'isgd', key: '', domain: '', auto: true }; }
+function shortHost(cfg) { return cfg.provider === 'shortio' ? (cfg.domain || 'seu-dominio') : (SHORTENERS[cfg.provider] || {}).host || ''; }
+function cleanSlug(s) { return slug(s).slice(0, 22).replace(/-+$/, ''); }
+function aliasFor(cfg, a) {
+  if (cfg.provider === 'isgd' || cfg.provider === 'vgd') a = a.replace(/-/g, '_');
+  if (a.replace(/[-_]/g, '').length < 5 || a.length < 5) a = a + (cfg.provider === 'isgd' || cfg.provider === 'vgd' ? '_evento' : '-evento');
+  return a.slice(0, 30);
+}
+function jsonp(url, timeout = 15000) {
+  return new Promise((res, rej) => {
+    const cb = '__jp' + rand() + rand(), s = document.createElement('script');
+    const done = () => { delete window[cb]; s.remove(); clearTimeout(t); };
+    const t = setTimeout(() => { done(); rej(new AppError('O encurtador não respondeu. Tente de novo.', 'short')); }, timeout);
+    window[cb] = d => { done(); res(d); };
+    s.onerror = () => { done(); rej(new AppError('Não foi possível acessar o encurtador.', 'short')); };
+    s.src = url + '&callback=' + cb; document.head.appendChild(s);
+  });
+}
+async function shortenOne(cfg, long, alias) {
+  const p = cfg.provider;
+  if (p === 'isgd' || p === 'vgd') {
+    const d = await jsonp(`https://${p === 'vgd' ? 'v.gd' : 'is.gd'}/create.php?format=json&logstats=0&url=${encodeURIComponent(long)}${alias ? '&shorturl=' + encodeURIComponent(alias) : ''}`);
+    if (d && d.shorturl) return d.shorturl;
+    const msg = (d && d.errormessage) || 'Erro no encurtador';
+    const taken = /already exists|taken|in use|pick another|choose another/i.test(msg);
+    if (d && d.errorcode === 3) throw new AppError('Limite do encurtador atingido. Aguarde alguns minutos.', 'short');
+    throw new AppError(taken ? `O endereço "${alias}" já está em uso. Escolha outro.` : msg, taken ? 'taken' : 'short');
+  }
+  if (p === 'tinyurl') {
+    if (!cfg.key) throw new AppError('Informe o token do TinyURL em Conta → Links curtos.', 'short');
+    let r; try { r = await fetch('https://api.tinyurl.com/create', { method: 'POST', headers: { Authorization: 'Bearer ' + cfg.key, 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ url: long, domain: 'tinyurl.com', alias: alias || undefined }) }); }
+    catch { throw new AppError('Não foi possível acessar o TinyURL.', 'short'); }
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.data && j.data.tiny_url) return j.data.tiny_url;
+    const msg = (j.errors || []).join(' ') || 'Erro no TinyURL (' + r.status + ')';
+    const taken = /alias.*(taken|exist|available|use)/i.test(msg);
+    throw new AppError(taken ? `O endereço "${alias}" já está em uso. Escolha outro.` : msg, taken ? 'taken' : 'short');
+  }
+  if (p === 'shortio') {
+    if (!cfg.key || !cfg.domain) throw new AppError('Informe a chave pública e o domínio do Short.io em Conta → Links curtos.', 'short');
+    let r; try { r = await fetch('https://api.short.io/links/public', { method: 'POST', headers: { authorization: cfg.key, 'Content-Type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ domain: cfg.domain, originalURL: long, path: alias || undefined, allowDuplicates: true }) }); }
+    catch { throw new AppError('Não foi possível acessar o Short.io.', 'short'); }
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.shortURL) return j.shortURL.replace(/^http:/, 'https:');
+    if (r.status === 409) throw new AppError(`O endereço "${alias}" já está em uso. Escolha outro.`, 'taken');
+    throw new AppError(j.error || j.message || 'Erro no Short.io (' + r.status + ')', 'short');
+  }
+  throw new AppError('Links curtos desligados. Ative em Conta → Links curtos.', 'short');
+}
+function defaultEventSlug(m) { return cleanSlug(m.anfitrioes || m.nome) || 'evento'; }
+/** Cria os 3 links curtos do evento (site, envio de fotos e painel dos anfitriões) e grava no evento. */
+async function shortenEvent(sync, slugBase, { auto = false } = {}) {
+  const cfg = state.short; if (!cfg || cfg.provider === 'off') throw new AppError('Links curtos desligados. Ative em Conta → Links curtos.', 'short');
+  const s = cleanSlug(slugBase); if (!s) throw new AppError('Escolha um endereço com letras ou números.', 'short');
+  const L = links(sync.id, sync.token, adminBase()), sfx = rand().slice(0, 4);
+  const want = { e: s, up: s + '-fotos', h: s + '-painel-' + sfx };
+  const out = {};
+  for (const k of ['e', 'up', 'h']) {
+    let alias = aliasFor(cfg, want[k]), url;
+    try { url = await shortenOne(cfg, L[k], alias); }
+    catch (e) {
+      if (!(auto && e.code === 'taken')) throw e;
+      alias = aliasFor(cfg, want[k] + '-' + rand().slice(0, 3)); url = await shortenOne(cfg, L[k], alias);
+    }
+    out[k] = { url, long: L[k], alias };
+  }
+  await mutateMeta(sync, m => { m.curtos = { ...out, slug: s, provider: cfg.provider, criado: new Date().toISOString() }; });
+  return out;
+}
+function needsShort(sync) {
+  const m = sync.meta; if (!m) return false;
+  const L = links(sync.id, sync.token, adminBase()), c = m.curtos || {};
+  return ['up', 'e', 'h'].some(k => !c[k] || !c[k].long || c[k].long.split('#')[1] !== L[k].split('#')[1]);
+}
+const autoTried = new Set();
+async function autoShorten(sync, onDone) {
+  const cfg = state.short;
+  if (!cfg || !cfg.auto || cfg.provider === 'off' || autoTried.has(sync.id) || !needsShort(sync)) return;
+  if ((cfg.provider === 'shortio' && (!cfg.key || !cfg.domain)) || (cfg.provider === 'tinyurl' && !cfg.key)) return;
+  autoTried.add(sync.id);
+  const slugBase = (sync.meta.curtos && sync.meta.curtos.slug) || defaultEventSlug(sync.meta);
+  try { await shortenEvent(sync, slugBase, { auto: true }); onDone && onDone(); }
+  catch (e) { console.warn('Links curtos', e); onDone && onDone(e); }
+}
 
 class EventSync {
   constructor(id, token, { metaOnly = false } = {}) {
@@ -1343,12 +1465,13 @@ function heroHTML(m, upHref) {
 }
 
 async function Gallery(id, tok) {
+  const alive = routeGuard();
   const sync = getSync(id, tok);
   await sync.loadCache();
-  const L = links(id, tok, baseHere()), enc = encTok(tok), upHref = `#/up/${id}/${enc}`;
+  const L = livePub(sync, baseHere), enc = encTok(tok), upHref = `#/up/${id}/${enc}`;
   let view = 'album', grid = null, drawn = false, initial = true;
 
-  function draw() {
+  function draw() { if (!alive()) return;
     const m = sync.meta; if (!m) return;
     applyEventLook(m, sync.assets); document.title = m.nome;
     const tpl = TEMPLATES[m.template] || TEMPLATES.moderno;
@@ -1390,7 +1513,7 @@ async function Gallery(id, tok) {
     $('#gTabs').innerHTML = tabs.map(([k, l, n]) => `<button class="chip ${view === k ? 'on' : ''}" data-v="${k}">${esc(l)} <small>${n}</small></button>`).join('');
     $$('.gtab [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === view || (view === 'previa' && b.dataset.v === 'album')));
   }
-  function drawView(rebuild) {
+  function drawView(rebuild) { if (!alive()) return;
     const box = $('#gView'); if (!box) return;
     const m = sync.meta, tpl = TEMPLATES[m.template] || TEMPLATES.moderno;
     drawTabs();
@@ -1449,6 +1572,7 @@ async function Gallery(id, tok) {
    ENVIO DE FOTOS E RECADOS  (#/up/<id>/<chave>[/recado])
    ===================================================================== */
 async function Upload(id, tok, mode) {
+  const alive = routeGuard();
   const sync = getSync(id, tok, true);
   await sync.loadCache();
   const enc = encTok(tok), items = [];
@@ -1456,7 +1580,7 @@ async function Upload(id, tok, mode) {
   const guestName = (await DB.get('kv', 'guestName')) || '';
   const pick = makePicker({ list: items, onChange: () => drawPreviews() });
 
-  function draw() {
+  function draw() { if (!alive()) return;
     const m = sync.meta; if (!m) return;
     applyEventLook(m, sync.assets); document.title = 'Enviar fotos · ' + m.nome; drawn = true;
     if (!m.aberto) { app.innerHTML = msgScreen('lock', 'Envio encerrado', `O envio de fotos para "${m.nome}" foi encerrado. Você ainda pode ver o álbum.`, `<a class="btn" href="#/e/${id}/${enc}">${ic('images')} Ver álbum</a>`); return; }
@@ -1491,7 +1615,7 @@ async function Upload(id, tok, mode) {
     box.innerHTML = n ? `<div class="alert" style="margin-bottom:18px">${ic('alert')}<div><b>${plural(n, 'envio pendente', 'envios pendentes')}.</b> A conexão caiu da última vez. <a href="#" id="retryQ" style="font-weight:700">Enviar agora</a></div></div>` : '';
     const r = $('#retryQ'); if (r) r.onclick = e => { e.preventDefault(); send(); };
   }
-  function drawPreviews() {
+  function drawPreviews() { if (!alive()) return;
     const box = $('#previews'); if (!box) return;
     box.innerHTML = previewsHTML(items);
     const ready = items.filter(i => i.status === 'ready').length, proc = items.some(i => i.status === 'processing');
@@ -1534,6 +1658,7 @@ async function Upload(id, tok, mode) {
 /* =====================================================================
    COMPONENTES COMPARTILHADOS (painel admin e painel dos anfitriões)
    ===================================================================== */
+function routeGuard() { const id = state.routeId; return () => id === state.routeId; }
 function shellHTML({ nav, active, title, sub = '', back = '', actions = '', sideTop = '', sideFoot = '' }) {
   const navLink = (n, cls) => `<a class="${cls} ${n.id === active ? 'on' : ''} ${n.primary ? 'primary' : ''}" href="${n.href || '#'}" ${n.click ? `data-nav="${n.id}"` : ''}>`;
   const side = [...nav.filter(n => n.primary), ...nav.filter(n => !n.primary)];
@@ -1557,7 +1682,7 @@ function linkCard(kind, url, m, { hl = false } = {}) {
     h: [`Painel dos ${m.hostLabel.toLowerCase()}`, `Envie para ${m.anfitrioes || 'os anfitriões'}: lá eles enviam as fotos da ${m.albumPrevia.toLowerCase()}, personalizam o site e acompanham tudo.`, `Olá${m.anfitrioes ? ', ' + m.anfitrioes : ''}! 💛 Este é o painel de ${m.nome}. Por ele vocês enviam as fotos da ${m.albumPrevia.toLowerCase()}, personalizam o site e acompanham as fotos dos convidados. Dica: instale como app no celular. ${url}`],
   }[kind];
   return `<div class="card link-card ${hl ? 'hl' : ''}"><div class="qr-box">${qrSVG(url)}</div><div class="link-body">
-    <h3>${esc(info[0])}</h3><p class="muted">${esc(info[1])}</p><div class="url-box"><input readonly value="${esc(url)}" onclick="this.select()"></div>
+    <h3>${esc(info[0])}</h3><p class="muted">${esc(info[1])}</p><div class="url-box">${url.includes('#/') ? `<input readonly value="${esc(url)}" onclick="this.select()">` : `<div class="short-url">${ic('check', 15)}<span>${esc(url.replace(/^https?:\/\//, ''))}</span></div>`}</div>
     <div class="row wrap-row" style="gap:8px"><button class="btn sm" data-copy="${esc(url)}">${ic('copy', 16)} Copiar</button><a class="btn sm wa" href="${esc(waLink(info[2]))}" target="_blank" rel="noopener">${ic('wa', 16)} WhatsApp</a><a class="btn sm ghost" href="${esc(url)}" target="_blank" rel="noopener">${ic('ext', 16)} Abrir</a><button class="btn sm ghost" data-qrdl="${esc(url)}" data-kind="${kind}">${ic('download', 16)} QR</button>${kind !== 'h' ? `<button class="btn sm ghost" data-print="${kind}" data-url="${esc(url)}">${ic('printer', 16)} Placa</button>` : ''}</div>
   </div></div>`;
 }
@@ -1677,7 +1802,7 @@ function personalizeView(box, sync, role) {
   const isAdmin = role === 'admin';
   const w = structuredClone(sync.meta), pend = {};
   const cur = k => (k in pend ? pend[k] : sync.assets[k]) || '';
-  const L = links(sync.id, sync.token, isAdmin ? adminBase() : baseHere());
+  const L = livePub(sync, isAdmin ? adminBase : baseHere);
   const fields = (k, label, opts = {}) => `<div class="field"><label class="f" for="pz_${k}">${label}${opts.opt ? ' <span class="opt">(opcional)</span>' : ''}</label>${opts.area ? `<textarea id="pz_${k}" data-k="${k}" rows="2" maxlength="${opts.max || 400}" placeholder="${esc(opts.ph || '')}">${esc(w[k])}</textarea>` : `<input id="pz_${k}" data-k="${k}" type="${opts.type || 'text'}" maxlength="${opts.max || 100}" placeholder="${esc(opts.ph || '')}" value="${esc(w[k])}">`}${opts.hint ? `<p class="hint">${opts.hint}</p>` : ''}</div>`;
   const sw = (k, title, desc) => `<label class="switch"><input type="checkbox" data-k="${k}" ${k.split('.').reduce((o, p) => o[p], w) ? 'checked' : ''}><span class="knob"></span><span><b>${title}</b><span class="d">${desc}</span></span></label>`;
   const T = TIPOS[w.tipo];
@@ -1775,9 +1900,10 @@ function personalizeView(box, sync, role) {
    PAINEL DOS ANFITRIÕES  (#/h/<id>/<chave>/<aba>)
    ===================================================================== */
 async function Host(id, tok, tab = 'inicio') {
+  const alive = routeGuard();
   const sync = getSync(id, tok);
   await sync.loadCache();
-  const enc = encTok(tok), L = links(id, tok, baseHere()), base = `#/h/${id}/${enc}`;
+  const enc = encTok(tok), L = livePub(sync, baseHere), base = `#/h/${id}/${enc}`;
   let drawn = false, view = null;
   function nav(m) {
     return [
@@ -1789,7 +1915,7 @@ async function Host(id, tok, tab = 'inicio') {
     ];
   }
   const pendN = () => sync.list(['foto', 'recado']).filter(p => itemStatus(sync.meta, p) === 'pendente').length;
-  function draw() {
+  function draw() { if (!alive()) return;
     const m = sync.meta; if (!m) return;
     if ((tab === 'fotos' && !m.host.moderar) || (tab === 'personalizar' && !m.host.personalizar)) tab = 'inicio';
     applySysLook(m.cor); setPageBg({ tipo: 'template' }); document.title = `${m.hostLabel} · ${m.nome}`;
@@ -1804,7 +1930,7 @@ async function Host(id, tok, tab = 'inicio') {
     $$('[data-inst]').forEach(b => b.onclick = installApp);
     drawn = true; drawTab();
   }
-  function drawTab() {
+  function drawTab() { if (!alive()) return;
     const box = $('#content'), m = sync.meta;
     if (tab === 'inicio') {
       const nF = sync.list('foto').length, nP = sync.list('previa').length, nR = sync.list('recado').length, pend = pendN();
@@ -1939,6 +2065,7 @@ function evCard(ev) {
 }
 
 async function AdminHome() {
+  const alive = routeGuard();
   if (!state.cfg.token) return AdminSetup();
   applySysLook(); document.title = 'Eventos · ' + APP_NAME;
   adminShell('eventos', { title: 'Seus eventos', sub: state.cfg.user ? `Conectado como ${state.cfg.user.login}` : '', actions: `<button class="btn sm" data-new style="margin-left:6px">${ic('plus', 16)} <span>Novo</span></button>` });
@@ -1947,7 +2074,7 @@ async function AdminHome() {
   box.innerHTML = `<div class="page-head"><div style="flex:1;max-width:420px"><input id="evQ" placeholder="Buscar evento…" style="border-radius:99px"></div></div><div id="evList" class="ev-grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>`;
   $('#evQ').oninput = e => { const q = e.target.value.toLowerCase(); $$('.ev-card').forEach(c => c.style.display = c.dataset.name.includes(q) ? '' : 'none'); };
   const render = evs => {
-    const el = $('#evList'); if (!el) return;
+    const el = $('#evList'); if (!el || !alive()) return;
     evs.sort((a, b) => (b.meta.data || b.meta.criado || '').localeCompare(a.meta.data || a.meta.criado || ''));
     el.innerHTML = evs.length ? evs.map(evCard).join('') : `<div class="empty" style="grid-column:1/-1"><div class="ico-big">${ic('camera', 32)}</div><h3>Nenhum evento ainda</h3><p style="margin-bottom:20px">Crie o primeiro evento para gerar os QR codes e o site.</p><button class="btn" data-new2>${ic('plus')} Criar evento</button></div>`;
     $('[data-new2]')?.addEventListener('click', newEventModal);
@@ -1974,6 +2101,8 @@ async function AdminHome() {
     });
     for (const c of cached) if (!out.find(o => o.id === c.id)) await DB.del('events', c.id);
     render(out);
+    // cria links curtos que faltam, um evento por vez, em segundo plano
+    (async () => { for (const ev of out) { if (!location.hash.match(/^#\/admin\/?$|^$|^#$/)) break; const sy = getSync(ev.id, state.cfg.token, true); await sy.loadCache(); if (!sy.meta) sy.meta = ev.meta; if (needsShort(sy)) await autoShorten(sy); } })();
   } catch (e) {
     toast(e.message, 'err');
     if (e.code === 'auth') { state.cfg.token = null; await DB.del('kv', 'token'); route(); }
@@ -1981,23 +2110,54 @@ async function AdminHome() {
   }
 }
 
+function shortCardHTML(sync) {
+  const cfg = state.short, c = sync.meta.curtos, ok = c && !needsShort(sync);
+  if (cfg.provider === 'off' && !ok) return `<div class="card short-card"><div class="sc-ic">${ic('link')}</div><div class="sc-body"><b>Links curtos desligados</b><p class="muted small">Ative em Conta → Links curtos para trocar os links longos por endereços como <b>is.gd/ana_pedro</b>.</p></div><a class="btn sm ghost" href="#/admin/conta">Ativar</a></div>`;
+  return `<div class="card short-card"><div class="sc-ic">${ic('link')}</div><div class="sc-body"><b>Endereço dos links</b>
+    <p class="muted small" id="shortStatus">${ok ? `<span class="slug-chip">${esc(c.e.url.replace(/^https?:\/\//, ''))}</span> · criado com ${esc(SHORTENERS[c.provider]?.nome || c.provider)}` : (cfg.auto ? 'Criando links curtos…' : 'Os links ainda estão no formato longo.')}</p></div>
+    <div class="row" style="gap:8px">${!ok && !cfg.auto ? `<button class="btn sm" id="eSlug">${ic('link', 16)} Encurtar</button>` : `<button class="btn sm ghost" id="eSlug">${ic('edit', 16)} Personalizar</button>`}${!ok && cfg.auto ? `<button class="btn sm ghost" id="eShortRetry" title="Tentar de novo">${ic('refresh', 16)}</button>` : ''}</div></div>`;
+}
+function slugModal(sync, onDone) {
+  const cfg = state.short, host = shortHost(cfg);
+  if (cfg.provider === 'off') { location.hash = '#/admin/conta'; return toast('Ative os links curtos primeiro.', 'err'); }
+  const cur = (sync.meta.curtos && sync.meta.curtos.slug) || defaultEventSlug(sync.meta);
+  const md = modal(`<div class="mhead"><h3 style="margin:0">Personalizar endereço</h3><button class="icon-btn" data-close>${ic('x')}</button></div>
+    <p class="muted small" style="margin-bottom:16px">Escolha um nome curto e fácil, como o nome dos noivos. Ele vira o endereço dos três links do evento.</p>
+    <div class="field"><label class="f" for="slIn">Endereço</label><div class="slug-in"><span>${esc(host)}/</span><input id="slIn" maxlength="22" value="${esc(cur)}" autocomplete="off" spellcheck="false"></div><p class="hint">Use letras e números (de 5 a 22 caracteres). Acentos e espaços são ajustados sozinhos.</p></div>
+    <div class="slug-prev" id="slPrev"></div>
+    <p class="hint" style="margin:10px 0 18px">${sync.meta.curtos ? 'Os links curtos anteriores continuam funcionando — não é preciso reimprimir nada que já foi distribuído.' : ''} O link do painel recebe um final aleatório para não ser adivinhado.</p>
+    <div class="row end"><button class="btn ghost" data-close>Cancelar</button><button class="btn" id="slGo">${ic('link')} Criar links</button></div>`);
+  const prev = () => {
+    const s = cleanSlug($('#slIn', md.el).value) || '…', a = k => aliasFor(cfg, k);
+    $('#slPrev', md.el).innerHTML = [['Site do evento', a(s)], ['Enviar fotos', a(s + '-fotos')], ['Painel dos ' + sync.meta.hostLabel.toLowerCase(), a(s + '-painel-xxxx')]].map(([l, v]) => `<div><span>${esc(l)}</span><b>${esc(host)}/${esc(v)}</b></div>`).join('');
+  };
+  $('#slIn', md.el).oninput = prev; prev();
+  $('#slGo', md.el).onclick = async () => {
+    const b = $('#slGo', md.el); b.disabled = true; b.textContent = 'Criando…';
+    try { await shortenEvent(sync, $('#slIn', md.el).value); md.close(true); toast('Links curtos criados ✨', 'ok'); onDone && onDone(); }
+    catch (e) { toast(e.message, 'err'); b.disabled = false; b.innerHTML = `${ic('link')} Criar links`; }
+  };
+  setTimeout(() => $('#slIn', md.el).select(), 60);
+}
+
 async function AdminEvent(id, tab = 'resumo') {
+  const alive = routeGuard();
   if (!state.cfg.token) return AdminSetup();
   const sync = getSync(id, state.cfg.token);
   await sync.loadCache();
-  const L = links(id, state.cfg.token, adminBase()), base = `#/admin/evento/${id}`;
+  const L = livePub(sync, adminBase), base = `#/admin/evento/${id}`;
   let drawn = false, view = null;
-  function draw() {
+  function draw() { if (!alive()) return;
     const m = sync.meta; if (!m) return;
     applySysLook(); document.title = m.nome + ' · Painel';
     adminShell('eventos', { title: m.nome, sub: `${TIPOS[m.tipo].emoji} ${TIPOS[m.tipo].nome}${m.data ? ' · ' + fmtDate(m.data) : ''}`, back: '#/admin', actions: `<a class="icon-btn" href="${esc(L.e)}" target="_blank" rel="noopener" title="Ver site">${ic('ext')}</a>` });
     drawn = true; drawTabs(); drawTab();
   }
-  function drawTabs() {
+  function drawTabs() { if (!alive()) return;
     const pend = sync.list(['foto', 'recado']).filter(p => itemStatus(sync.meta, p) === 'pendente').length;
     $('#subtabs').innerHTML = subtabsHTML([['resumo', 'Resumo'], ['fotos', 'Fotos', sync.list('foto').length + (pend ? ` · ${pend} pendentes` : '')], ['previa', sync.meta.albumPrevia, sync.list('previa').length], ['recados', 'Recados', sync.list('recado').length], ['personalizar', 'Personalizar']], tab, k => `${base}/${k}`);
   }
-  function drawTab() {
+  function drawTab() { if (!alive()) return;
     const box = $('#content'), m = sync.meta;
     if (tab === 'resumo') {
       const all = sync.list(), guests = new Set(sync.list(['foto', 'recado']).map(p => (p.autor || '').toLowerCase()).filter(Boolean)).size;
@@ -2009,9 +2169,12 @@ async function AdminEvent(id, tab = 'resumo') {
         ${pend ? `<a class="alert info" href="${base}/fotos" style="margin-bottom:16px;text-decoration:none">${ic('info')}<div><b>${plural(pend, 'item aguardando', 'itens aguardando')} aprovação.</b> Toque para revisar.</div></a>` : ''}
         <div class="stats"><div class="card stat"><b>${sync.list('foto').length}</b><span>Fotos dos convidados</span></div><div class="card stat"><b>${sync.list('previa').length}</b><span>${esc(m.albumPrevia)}</span></div><div class="card stat"><b>${sync.list('recado').length}</b><span>Recados</span></div><div class="card stat"><b>${guests}</b><span>Convidados</span></div></div>
         <div class="sec-head"><h2>Links e QR codes</h2></div>
+        ${shortCardHTML(sync)}
         <div class="links">${linkCard('up', L.up, m)}${linkCard('e', L.e, m)}${linkCard('h', L.h, m, { hl: true })}</div>
         <div class="card danger-zone"><div><h3 style="font-size:18px">Excluir evento</h3><p class="muted small">Apaga o evento, as fotos e os recados do GitHub. Não pode ser desfeito.</p></div><button class="btn danger" id="eDel">${ic('trash', 16)} Excluir evento</button></div>`;
       paintAssets(box, sync.assets); bindLinkCards(box, m);
+      $('#eSlug')?.addEventListener('click', () => slugModal(sync, () => drawTab()));
+      $('#eShortRetry')?.addEventListener('click', () => { autoTried.delete(sync.id); runAuto(); });
       $('#eToggle').onclick = async () => { try { await mutateMeta(sync, mm => { mm.aberto = !mm.aberto; }); toast(sync.meta.aberto ? 'Envios reabertos' : 'Envios encerrados', 'ok'); drawTab(); } catch (e) { toast(e.message, 'err'); } };
       $('#eTv').onclick = () => openSlideshow(sync, L.up);
       $('#eDel').onclick = deleteEvent;
@@ -2038,7 +2201,8 @@ async function AdminEvent(id, tab = 'resumo') {
   sync.on('assets', () => { if (drawn) paintAssets(app, sync.assets); });
   sync.on('items', redraw);
   if (sync.meta) draw(); else { applySysLook(); app.innerHTML = loadingScreen('Carregando evento…'); }
-  try { await sync.refresh({ force: true }); if (!drawn) draw(); else redraw(); }
+  const runAuto = () => { if (!needsShort(sync) || !state.short.auto || state.short.provider === 'off') return; const st = $('#shortStatus'); if (st) st.textContent = 'Criando links curtos…'; autoShorten(sync, err => { if (err) toast('Não foi possível criar os links curtos: ' + err.message, 'err'); else toast('Links curtos criados ✨', 'ok'); if (tab === 'resumo') drawTab(); }); };
+  try { await sync.refresh({ force: true }); if (!drawn) draw(); else redraw(); runAuto(); }
   catch (e) {
     if (!drawn) { adminShell('eventos', { title: 'Evento', back: '#/admin' }); $('#content').innerHTML = msgScreen('alert', 'Não foi possível abrir o evento', e.message, `<a class="btn" href="#/admin">${ic('back')} Voltar</a>`); }
     else toast(e.message, 'err');
@@ -2084,6 +2248,7 @@ function AdminLook() {
 
 function AdminAccount() {
   if (!state.cfg.token) return AdminSetup();
+  const sc = { ...state.short };
   applySysLook(); document.title = 'Conta · ' + APP_NAME;
   adminShell('conta', { title: 'Conta e ajuda' });
   const box = $('#content');
@@ -2093,6 +2258,11 @@ function AdminAccount() {
       <div class="field"><label class="f" for="sBu">Endereço público do site</label><input id="sBu" value="${esc(state.cfg.baseUrl || '')}" placeholder="${esc(baseHere())}"><p class="hint">Usado nos links e QR codes. Em branco = endereço atual.</p></div>
       <div class="field"><label class="f" for="sTk">Trocar token <span class="opt">(opcional)</span></label><input id="sTk" type="password" placeholder="ghp_…" autocomplete="off"></div>
       <div class="row wrap-row"><button class="btn" id="sSave">${ic('check')} Salvar</button><button class="btn ghost" id="sClear">${ic('trash', 16)} Limpar cache local</button><button class="btn danger" id="sOut">${ic('logout', 16)} Desconectar</button></div></section>
+    <section class="card pz-sec" id="shortSec"><h3>Links curtos</h3><p class="muted">Troca os links longos por endereços curtos e personalizados, como <b>is.gd/ana_pedro</b>. Vale para cards, WhatsApp, QR codes, placas impressas e telão.</p>
+      <div class="prov-grid">${['isgd', 'shortio', 'vgd', 'tinyurl', 'off'].map(k => `<button class="prov ${sc.provider === k ? 'on' : ''}" data-prov="${k}"><b>${SHORTENERS[k].nome}</b><span>${SHORTENERS[k].desc || 'Usa os links completos.'}</span>${k === 'isgd' ? '<span class="tag">Recomendado · sem cadastro</span>' : k === 'shortio' ? '<span class="tag">Domínio próprio grátis</span>' : ''}</button>`).join('')}</div>
+      <div id="provOpts"></div>
+      <label class="switch"><input type="checkbox" id="shAuto" ${sc.auto ? 'checked' : ''}><span class="knob"></span><span><b>Encurtar automaticamente</b><span class="d">Cria os links curtos de cada evento sozinho (com o nome dos anfitriões). Você pode personalizar depois.</span></span></label>
+      <div class="row wrap-row"><button class="btn" id="shSave">${ic('check')} Salvar</button><button class="btn ghost" id="shTest">${ic('link', 16)} Testar</button></div></section>
     <section class="card pz-sec"><h3>Aplicativo</h3><p class="muted">${isStandalone() ? 'Você está usando o sistema como app instalado. ✅' : 'Instale para abrir como app no celular e como programa no computador.'}</p>${!isStandalone() ? `<button class="btn" data-inst>${ic('inst')} Instalar como app</button>` : ''}</section>
     <section class="card pz-sec help"><h3>Como funciona</h3>
       <h4>1. Crie o evento</h4><p>Escolha o tipo (casamento, 15 anos…). O sistema já sugere modelo, cores e textos.</p>
@@ -2102,6 +2272,28 @@ function AdminAccount() {
       <h4>5. Depois</h4><p>Baixe tudo em ZIP (fotos separadas por álbum + arquivo com os recados). Feche os envios quando quiser.</p>
       <h4>Limites</h4><p>Cada foto de convidado é reduzida para até ~600 KB (prévias até ~900 KB). Cada Gist guarda até ${MAX_FILES_PER_GIST} itens; quando enche, o sistema cria outro automaticamente.</p></section></div>`;
   $$('[data-inst]', box).forEach(b => b.onclick = installApp);
+  const provOpts = () => {
+    const o = $('#provOpts');
+    o.innerHTML = sc.provider === 'shortio' ? `<ol class="steps" style="margin:4px 0 16px"><li>Crie uma conta grátis em <a href="https://app.short.io" target="_blank" rel="noopener">short.io ↗</a> e adicione um domínio (o seu, como <code>fotos.seudominio.com.br</code>, ou um gratuito oferecido por eles).</li><li>Em <b>Integrations &amp; API</b>, crie uma chave do tipo <b>Public key</b> e cole abaixo.</li></ol>
+        <div class="grid2"><div class="field"><label class="f" for="shDom">Domínio</label><input id="shDom" value="${esc(sc.domain)}" placeholder="fotos.seudominio.com.br"></div><div class="field"><label class="f" for="shKey">Chave pública</label><input id="shKey" value="${esc(sc.key)}" placeholder="pk_…" autocomplete="off"></div></div>`
+      : sc.provider === 'tinyurl' ? `<div class="field"><label class="f" for="shKey">Token da API do TinyURL</label><input id="shKey" value="${esc(sc.key)}" autocomplete="off" placeholder="Token criado em tinyurl.com → Account → API"></div>`
+      : sc.provider === 'off' ? '' : `<p class="muted small" style="margin-bottom:14px">Não precisa de cadastro nem chave. Os links ficam como <b>${esc(SHORTENERS[sc.provider].host)}/nome_do_evento</b>.</p>`;
+  };
+  const readShort = () => { sc.key = ($('#shKey')?.value || sc.key || '').trim(); sc.domain = ($('#shDom')?.value || sc.domain || '').trim().replace(/^https?:\/\//, '').replace(/\/.*$/, ''); sc.auto = $('#shAuto').checked; };
+  $('#shortSec').addEventListener('click', e => { const b = e.target.closest('[data-prov]'); if (!b) return; readShort(); sc.provider = b.dataset.prov; $$('[data-prov]').forEach(x => x.classList.toggle('on', x === b)); provOpts(); });
+  provOpts();
+  $('#shSave').onclick = async () => { readShort(); state.short = { ...sc }; await DB.put('kv', state.short, 'shortCfg'); autoTried.clear(); toast('Links curtos salvos', 'ok'); };
+  $('#shTest').onclick = async () => {
+    readShort(); const b = $('#shTest'); b.disabled = true; b.textContent = 'Testando…';
+    try {
+      const u = await shortenOne(sc, adminBase() + '#/teste-link/' + rand(), '');
+      modal(`<div class="mhead"><h3 style="margin:0">Link de teste criado</h3><button class="icon-btn" data-close>${ic('x')}</button></div>
+        <p class="muted" style="margin-bottom:14px">Abra o link abaixo. Se aparecer a tela <b>“Links curtos funcionando”</b>, está tudo certo — inclusive no celular.</p>
+        <div class="short-url">${ic('check', 15)}<span>${esc(u.replace(/^https?:\/\//, ''))}</span></div>
+        <div class="row end"><button class="btn ghost" data-close>Fechar</button><a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${ic('ext')} Abrir link</a></div>`);
+    } catch (e) { toast(e.message, 'err'); }
+    b.disabled = false; b.innerHTML = `${ic('link', 16)} Testar`;
+  };
   $('#sSave').onclick = async () => {
     const b = $('#sBu').value.trim(), t = $('#sTk').value.trim();
     try {
@@ -2123,6 +2315,7 @@ function AdminAccount() {
 
 /* ---------------- Roteador ---------------- */
 async function route() {
+  state.routeId = (state.routeId || 0) + 1;
   state.cleanup.splice(0).forEach(f => { try { f(); } catch {} });
   $$('.newpill').forEach(b => b.remove());
   window.scrollTo(0, 0);
@@ -2136,6 +2329,7 @@ async function route() {
       if (p[0] === 'up') return await Upload(p[1], tok, p[3]);
       return await Host(p[1], tok, p[3] || 'inicio');
     }
+    if (p[0] === 'teste-link') { applySysLook(); app.innerHTML = msgScreen('check', 'Links curtos funcionando ✅', 'O encurtador levou você até o sistema corretamente. Pode usar os links curtos nos convites, QR codes e placas.', `<a class="btn" href="#/admin">${ic('back')} Voltar ao painel</a>`); return; }
     if (p[0] === 'admin' && p[1] === 'evento' && p[2]) return await AdminEvent(p[2], p[3] || 'resumo');
     if (p[0] === 'admin' && p[1] === 'aparencia') return AdminLook();
     if (p[0] === 'admin' && p[1] === 'conta') return AdminAccount();
@@ -2150,6 +2344,7 @@ async function route() {
   state.cfg.token = await DB.get('kv', 'token');
   state.cfg.user = await DB.get('kv', 'user');
   state.cfg.baseUrl = (await DB.get('kv', 'baseUrl')) || '';
+  state.short = { ...defaultShort(), ...((await DB.get('kv', 'shortCfg')) || {}) };
   const lk = await DB.get('kv', 'sysLook'); state.look = { ...defaultLook(), ...(lk || {}) }; state.look.fundo = { ...defaultLook().fundo, ...(state.look.fundo || {}) };
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { if (document.body.classList.contains('syspage')) applySysLook(); });
   if ((!location.hash || location.hash === '#') && (isStandalone() || /[?&]app=1/.test(location.search))) {
