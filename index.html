@@ -267,6 +267,30 @@ label.f{display:block;font-weight:600;font-size:14px;margin:0 0 7px}
 .prov.on{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent)}
 .prov b{display:block;font-size:15px}.prov span{display:block;font-size:12.5px;color:var(--muted);line-height:1.35;margin-top:3px}
 .prov .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;background:#dcfae6;color:#067647;margin-top:6px}
+.notice{display:flex;gap:14px;padding:16px 18px;border-radius:18px;margin-bottom:16px;background:color-mix(in srgb,var(--accent) 8%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));color:var(--ink)}
+.notice>svg{flex:none;color:var(--accent);margin-top:2px}
+.notice>div>b{display:block;font-size:15px;margin-bottom:4px}.notice p{font-size:13.5px;color:var(--muted);margin-bottom:10px}.notice p:last-child{margin-bottom:0}
+.notice.urgent{background:#fff4e5;border-color:#f8c98a;color:#5c3a00}.notice.urgent>svg{color:#dc6803}.notice.urgent p{color:#7a4b00}
+.notice.arch{background:#eef4ff;border-color:#b2ccff;color:#1d2939}.notice.arch>svg{color:#2e6ae6}.notice.arch p{color:#475467}
+html[data-theme=dark] .notice.urgent{background:#3a2a10;border-color:#7a5212;color:#fde7c4}html[data-theme=dark] .notice.urgent p{color:#f3d9a8}
+html[data-theme=dark] .notice.arch{background:#14233f;border-color:#2e4a80;color:#dbe6ff}html[data-theme=dark] .notice.arch p{color:#b8c6e3}
+.dl-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding-bottom:16px}
+@media(max-width:520px){.dgrid{grid-template-columns:repeat(3,1fr);gap:4px}}
+.dtile{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--soft);cursor:pointer;outline:none;transition:transform .15s}
+.dtile img{width:100%;height:100%;object-fit:cover;transition:transform .2s,opacity .2s}
+.dtile:focus-visible{box-shadow:0 0 0 3px var(--accent)}
+.dtile .ck{position:absolute;top:7px;left:7px;width:26px;height:26px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.25);display:grid;place-items:center;color:transparent;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:background .15s}
+.dtile.on{box-shadow:inset 0 0 0 3px var(--accent)}
+.dtile.on img{transform:scale(.9);border-radius:8px}
+.dtile.on .ck{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.dtile .zoom{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;display:grid;place-items:center;opacity:.85}
+.dtile .who{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.6));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dlbar{position:sticky;bottom:calc(84px + var(--sab));z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:20px;background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);box-shadow:var(--shadow)}
+.dlinfo{font-size:14px;display:flex;flex-direction:column;gap:2px}
+.dlr{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer}.dlr input{width:auto;accent-color:var(--accent)}
+@media(max-width:520px){.dlbar .row{width:100%}.dlbar .row .btn{flex:1;padding:12px 10px;font-size:14px}}
+@media(min-width:960px){.dlbar{bottom:16px}.evpage .dlbar{bottom:16px}}
 /* personalizar */
 .pz{display:flex;flex-direction:column;gap:16px;max-width:900px}
 .pz-sec{padding:20px}
@@ -730,6 +754,7 @@ const ICONS = {
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   inst: '<path d="M12 3v12M7 10l5 5 5-5"/><rect x="3" y="17" width="18" height="4" rx="1"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
 };
 const ic = (n, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
@@ -853,6 +878,7 @@ function normalizeMeta(m = {}) {
     ocultas: Array.isArray(m.ocultas) ? m.ocultas : [], aprovadas: Array.isArray(m.aprovadas) ? m.aprovadas : [],
     criado: m.criado || new Date().toISOString(), capa: m.capa || '',
     curtos: m.curtos && typeof m.curtos === 'object' ? m.curtos : null,
+    retencao: Math.max(1, Math.min(3650, parseInt(m.retencao) || 60)), arquivado: m.arquivado || null,
   };
 }
 function itemStatus(meta, it) {
@@ -1018,7 +1044,8 @@ class EventSync {
     const remote = new Map();
     for (const g of mine) for (const [n, f] of Object.entries(g.files)) if (isItem(n)) remote.set(n, { gistId: g.id, raw: f.raw_url });
     let removed = false;
-    for (const k of [...this.items.keys()]) if (!remote.has(k)) { this.items.delete(k); DB.del('items', this.id + '|' + k); removed = true; }
+    // evento arquivado: as fotos saíram da nuvem, mas as cópias locais (IndexedDB) são mantidas
+    if (!this.meta || !this.meta.arquivado) for (const k of [...this.items.keys()]) if (!remote.has(k)) { this.items.delete(k); DB.del('items', this.id + '|' + k); removed = true; }
     for (const [n, info] of remote) { const p = this.items.get(n); if (p && p.gistId !== info.gistId) p.gistId = info.gistId; }
     const missing = [...remote].filter(([n]) => !this.items.has(n));
     if (removed && !missing.length) this.emit('items', []);
@@ -1364,21 +1391,122 @@ function startCountdown(m) {
   const tick = () => { $$('[data-cd]').forEach(el => { el.innerHTML = countdownHTML(m); }); };
   tick(); const t = setInterval(tick, 30000); state.cleanup.push(() => clearInterval(t));
 }
-async function downloadZip(sync, onlyVisible, btn) {
-  const photos = onlyVisible ? sync.visible(['foto', 'previa']) : sync.list(['foto', 'previa']);
-  const notes = onlyVisible ? sync.visible('recado') : sync.list('recado');
-  if (!photos.length) return toast('Ainda não há fotos.', 'err');
+/* ---------------- Download em ZIP (com seleção) ---------------- */
+const fmtMB = b => b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(b < 10485760 ? 1 : 0).replace('.', ',') + ' MB';
+const ZIP_PART = 150; // fotos por arquivo .zip (evita travar celulares com álbuns grandes)
+async function zipPhotos(sync, photos, notes, btn) {
+  if (!photos.length && !notes.length) return toast('Selecione pelo menos uma foto.', 'err');
   const label = btn ? btn.innerHTML : '';
   if (btn) { btn.disabled = true; btn.textContent = 'Preparando…'; }
   try {
     const JSZip = await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', 'JSZip');
-    const zip = new JSZip(), used = new Set(), prev = slug(sync.meta.albumPrevia);
-    photos.forEach(p => { const dir = p.kind === 'previa' ? prev : 'convidados'; let n = `${dir}/${stamp(p.ts)}${p.autor ? '_' + slug(p.autor) : ''}`, b = n, k = 2; while (used.has(n)) n = b + '_' + k++; used.add(n); zip.file(n + '.jpg', p.blob); });
-    if (notes.length) zip.file('recados.txt', notes.map(r => `${r.autor || 'Anônimo'} (${new Date(r.ts).toLocaleString('pt-BR')}):\n${r.msg}\n`).join('\n'));
-    const blob = await zip.generateAsync({ type: 'blob' }, md => { if (btn) btn.textContent = `Compactando ${Math.round(md.percent)}%`; });
-    saveBlob(blob, `fotos-${slug(sync.meta.nome)}.zip`);
+    const root = slug(sync.meta.nome), prev = slug(sync.meta.albumPrevia), parts = Math.max(1, Math.ceil(photos.length / ZIP_PART));
+    for (let i = 0; i < parts; i++) {
+      const zip = new JSZip(), dir = zip.folder(root), used = new Set();
+      photos.slice(i * ZIP_PART, (i + 1) * ZIP_PART).forEach(p => {
+        const sub = p.kind === 'previa' ? prev : 'convidados';
+        let n = `${sub}/${stamp(p.ts)}${p.autor ? '_' + slug(p.autor) : ''}`, b = n, k = 2; while (used.has(n)) n = b + '_' + k++; used.add(n);
+        dir.file(n + '.jpg', p.blob, { date: new Date(p.ts) });
+      });
+      if (i === 0 && notes.length) dir.file('recados.txt', notes.map(r => `${r.autor || 'Anônimo'} (${new Date(r.ts).toLocaleString('pt-BR')}):\n${r.msg}\n`).join('\n'));
+      const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE', streamFiles: true }, md => { if (btn) btn.textContent = parts > 1 ? `Parte ${i + 1}/${parts} · ${Math.round(md.percent)}%` : `Compactando ${Math.round(md.percent)}%`; });
+      saveBlob(blob, `fotos-${root}${parts > 1 ? `-parte-${i + 1}-de-${parts}` : ''}.zip`);
+      if (i < parts - 1) await sleep(1200);
+    }
+    toast(parts > 1 ? `Download em ${parts} arquivos .zip iniciado` : 'Download iniciado', 'ok');
   } catch (e) { toast(e.message, 'err'); }
   if (btn) { btn.disabled = false; btn.innerHTML = label; }
+}
+async function downloadZip(sync, onlyVisible, btn) {
+  await zipPhotos(sync, onlyVisible ? sync.visible(['foto', 'previa']) : sync.list(['foto', 'previa']), onlyVisible ? sync.visible('recado') : sync.list('recado'), btn);
+}
+
+/* ---------------- Prazo de 60 dias e arquivamento ---------------- */
+const DAY = 864e5;
+function expiryInfo(m) {
+  const days = m.retencao || 60, base = m.data ? new Date(m.data + 'T23:59:59') : new Date(m.criado);
+  const exp = new Date(base.getTime() + days * DAY), left = Math.ceil((exp - Date.now()) / DAY);
+  return { days, exp, left, expired: left <= 0, fmt: exp.toLocaleDateString('pt-BR'), before: Date.now() < base.getTime() };
+}
+function retentionNoticeHTML(sync, dlHref) {
+  const m = sync.meta, x = expiryInfo(m), n = sync.list(['foto', 'previa']).length;
+  const dl = dlHref ? `<a class="btn sm" href="${dlHref}">${ic('download', 16)} Baixar fotos agora</a>` : '';
+  if (m.arquivado) return `<div class="notice arch">${ic('phone', 22)}<div><b>As fotos não estão mais na nuvem — ficaram salvas somente neste aparelho.</b>
+    <p>O prazo de ${x.days} dias após o evento terminou e, em ${new Date(m.arquivado).toLocaleDateString('pt-BR')}, as fotos foram excluídas do servidor automaticamente. ${n ? `Este aparelho guarda <b>${plural(n, 'foto')}</b>.` : 'Este aparelho não tem cópia das fotos.'} Baixe a pasta ZIP para guardar em definitivo: se os dados do navegador forem apagados ou você trocar de aparelho, elas se perdem.</p>${n ? dl : ''}</div></div>`;
+  const head = x.expired ? 'O prazo terminou: as fotos serão excluídas da nuvem a qualquer momento.'
+    : x.before ? `As fotos ficam online até ${x.fmt} (${x.days} dias após o evento).`
+    : `Faltam ${plural(x.left, 'dia')}: em ${x.fmt} as fotos serão excluídas da nuvem.`;
+  return `<div class="notice ${x.expired || x.left <= 15 ? 'urgent' : ''}">${ic('clock', 22)}<div><b>${head}</b>
+    <p>As fotos do site ficam online durante ${x.days} dias após a realização do evento. Passado esse período, elas serão excluídas automaticamente da nuvem e continuarão salvas apenas nos aparelhos que já abriram o álbum. Para não perder, baixe imediatamente.</p>${dl}</div></div>`;
+}
+/** Exclui da nuvem (Gist) as fotos e recados de um evento vencido. Só roda se este aparelho já tiver TODAS as fotos salvas. */
+async function archiveEvent(sync) {
+  if (sync.meta.arquivado) return false;
+  await sync.refresh({ force: true });
+  const remoteCount = sync.gists.reduce((n, g) => n + g.count, 0);
+  if ([...sync.items.values()].length < remoteCount) throw new AppError('Este aparelho ainda não baixou todas as fotos; o arquivamento fica para depois.', 'partial');
+  try { await navigator.storage?.persist?.(); } catch {}
+  await mutateMeta(sync, m => { m.arquivado = new Date().toISOString(); m.aberto = false; });
+  for (const g of sync.gists.filter(g => !g.main)) { try { await sync.gh.remove(g.id); } catch (e) { if (e.code !== '404') throw e; } }
+  const mainFiles = [...sync.items.values()].filter(i => i.gistId === sync.id).map(i => i.file);
+  for (let i = 0; i < mainFiles.length; i += 100) await sync.gh.update(sync.id, { files: Object.fromEntries(mainFiles.slice(i, i + 100).map(f => [f, null])) });
+  sync.gists = sync.gists.filter(g => g.main).map(g => ({ ...g, count: 0 }));
+  return true;
+}
+const archiving = new Set();
+async function autoArchive(sync, onDone) {
+  const m = sync.meta;
+  if (!m || m.arquivado || !expiryInfo(m).expired || archiving.has(sync.id)) return;
+  archiving.add(sync.id);
+  try { if (await archiveEvent(sync)) { toast('Prazo encerrado: as fotos saíram da nuvem e ficaram salvas neste aparelho.', 'ok'); onDone && onDone(); } }
+  catch (e) { console.warn('Arquivamento', e); archiving.delete(sync.id); }
+}
+
+/** Tela de download com seleção de fotos */
+function downloadView(box, sync, role) {
+  const sel = new Set(); let filter = 'todas', autor = '', incR = true;
+  const source = () => role === 'guest' ? sync.visible(['foto', 'previa']) : sync.list(['foto', 'previa']);
+  const notes = () => role === 'guest' ? sync.visible('recado') : sync.list('recado');
+  const filtered = () => source().filter(p => (filter === 'todas' || p.kind === filter) && (!autor || (p.autor || 'Anônimo') === autor));
+  const byKey = () => new Map(source().map(p => [p.key, p]));
+  function bar() {
+    const m = byKey(), bytes = [...sel].reduce((t, k) => t + (m.get(k)?.blob?.size || 0), 0);
+    $('#dlInfo', box).innerHTML = `<b>${sel.size}</b> ${sel.size === 1 ? 'foto selecionada' : 'fotos selecionadas'}${sel.size ? ' · ' + fmtMB(bytes) : ''}${sel.size > ZIP_PART ? ` · ${Math.ceil(sel.size / ZIP_PART)} arquivos .zip` : ''}`;
+    $('[data-dl]', box).disabled = !sel.size; $('[data-none]', box).disabled = !sel.size;
+  }
+  function draw() {
+    const all = source(), list = filtered(), keys = new Set(all.map(p => p.key));
+    [...sel].forEach(k => { if (!keys.has(k)) sel.delete(k); });
+    const nP = all.filter(p => p.kind === 'previa').length, nF = all.length - nP, nR = notes().length;
+    const authors = [...new Set(all.filter(p => p.kind === 'foto').map(p => p.autor || 'Anônimo'))].sort((a, b) => a.localeCompare(b));
+    box.innerHTML = `${role !== 'guest' || sync.meta.arquivado ? retentionNoticeHTML(sync) : ''}
+      <div class="dl-tools">
+        <div class="seg" style="margin:0">${[['todas', 'Todas', all.length], ['previa', sync.meta.albumPrevia, nP], ['foto', 'Convidados', nF]].filter(t => t[0] === 'todas' || t[2]).map(([k, l, n]) => `<button class="${filter === k ? 'on' : ''}" data-f="${k}">${esc(l)} <small>${n}</small></button>`).join('')}</div>
+        ${authors.length > 1 && filter !== 'previa' ? `<select id="dlA" style="width:auto;padding:9px 12px"><option value="">Todos os convidados</option>${authors.map(a => `<option ${a === autor ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select>` : ''}
+        <span class="spacer"></span>
+        <button class="btn sm ghost" data-all>${ic('check', 15)} Selecionar ${list.length === all.length ? 'todas' : 'estas'} (${list.length})</button><button class="btn sm ghost" data-none>Limpar</button>
+      </div>
+      ${list.length ? `<p class="muted small" style="margin:0 0 10px">Toque nas fotos para selecionar. Use ${ic('max', 13)} para ver em tela cheia.</p><div class="dgrid">${list.map(p => `<div class="dtile ${sel.has(p.key) ? 'on' : ''}" data-k="${p.key}" role="checkbox" aria-checked="${sel.has(p.key)}" tabindex="0"><img src="${itemURL(p)}" alt="" loading="lazy"><span class="ck">${ic('check', 16)}</span><button class="zoom" data-zoom="${p.key}" aria-label="Ampliar">${ic('max', 15)}</button>${p.kind === 'previa' ? `<span class="who">${esc(sync.meta.albumPrevia)}</span>` : p.autor ? `<span class="who">${esc(p.autor)}</span>` : ''}</div>`).join('')}</div>`
+        : `<div class="empty">${all.length ? 'Nenhuma foto neste filtro.' : sync.meta.arquivado ? 'Este aparelho não tem cópia das fotos deste evento.' : sync.loaded ? 'Ainda não há fotos.' : 'Carregando fotos…'}</div>`}
+      <div class="dlbar"><div class="dlinfo"><span id="dlInfo"></span>${nR ? `<label class="dlr"><input type="checkbox" id="dlR" ${incR ? 'checked' : ''}> Incluir os ${plural(nR, 'recado')} (recados.txt)</label>` : ''}</div>
+        <div class="row" style="gap:8px"><button class="btn ghost" data-dlall ${all.length ? '' : 'disabled'}>${ic('download', 16)} Todas (${all.length})</button><button class="btn" data-dl>${ic('download', 16)} Baixar selecionadas</button></div></div>`;
+    bar();
+  }
+  const toggle = t => { const k = t.dataset.k; sel.has(k) ? sel.delete(k) : sel.add(k); t.classList.toggle('on', sel.has(k)); t.setAttribute('aria-checked', sel.has(k)); bar(); };
+  box.addEventListener('click', e => {
+    const z = e.target.closest('[data-zoom]'); if (z) { const l = filtered(); return openLightbox(l, l.findIndex(p => p.key === z.dataset.zoom)); }
+    const t = e.target.closest('.dtile'); if (t) return toggle(t);
+    const f = e.target.closest('[data-f]'); if (f) { filter = f.dataset.f; if (filter === 'previa') autor = ''; return draw(); }
+    if (e.target.closest('[data-all]')) { filtered().forEach(p => sel.add(p.key)); return draw(); }
+    if (e.target.closest('[data-none]')) { sel.clear(); return draw(); }
+    const nr = () => (incR && $('#dlR', box) ? notes() : []);
+    if (e.target.closest('[data-dl]')) { const m = byKey(); return zipPhotos(sync, [...sel].map(k => m.get(k)).filter(Boolean).sort((a, b) => a.ts - b.ts), nr(), e.target.closest('[data-dl]')); }
+    if (e.target.closest('[data-dlall]')) return zipPhotos(sync, source().slice().sort((a, b) => a.ts - b.ts), nr(), e.target.closest('[data-dlall]'));
+  });
+  box.addEventListener('keydown', e => { const t = e.target.closest('.dtile'); if (t && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); toggle(t); } });
+  box.addEventListener('change', e => { if (e.target.id === 'dlA') { autor = e.target.value; draw(); } if (e.target.id === 'dlR') incR = e.target.checked; });
+  draw();
+  return { draw };
 }
 
 /* ---------------- Envio (fila no IndexedDB) ---------------- */
@@ -1469,7 +1597,7 @@ async function Gallery(id, tok) {
   const sync = getSync(id, tok);
   await sync.loadCache();
   const L = livePub(sync, baseHere), enc = encTok(tok), upHref = `#/up/${id}/${enc}`;
-  let view = 'album', grid = null, drawn = false, initial = true;
+  let view = 'album', grid = null, dv = null, drawn = false, initial = true;
 
   function draw() { if (!alive()) return;
     const m = sync.meta; if (!m) return;
@@ -1480,7 +1608,7 @@ async function Gallery(id, tok) {
         <div class="gnav-act">${m.aberto ? `<a class="btn sm" href="${upHref}">${ic('camera', 16)} Enviar fotos</a>` : ''}<button class="btn sm ghost" data-a="more">${ic('more', 16)} Mais</button></div>
         <span class="live" id="live"><i></i><span>Ao vivo</span></span></div></nav>
       <main class="wrap gwrap gmain" id="gView"></main>
-      <p class="gfoot">Feito com carinho · ${esc(m.nome)}</p>
+      <p class="gfoot">${m.arquivado ? 'Álbum arquivado · fotos salvas somente neste aparelho' : `Fotos online até ${expiryInfo(m).fmt}`} · ${esc(m.nome)}</p>
       <nav class="tabbar gtab">
         <button class="tab-item" data-v="album"><span class="tb-ic">${ic('images', 22)}</span><span>Álbum</span></button>
         ${m.recados ? `<button class="tab-item" data-v="recados"><span class="tb-ic">${ic('msg', 22)}</span><span>Recados</span></button>` : ''}
@@ -1500,7 +1628,7 @@ async function Gallery(id, tok) {
   function moreSheet() {
     const items = [
       { icon: 'share', label: 'Compartilhar álbum', sub: 'Envie o link para outros convidados', fn: () => shareLink(sync.meta.nome, `Veja as fotos de ${sync.meta.nome}`, L.e) },
-      { icon: 'download', label: 'Baixar todas as fotos', sub: 'Arquivo ZIP', fn: () => downloadZip(sync, true) },
+      { icon: 'download', label: 'Baixar fotos', sub: 'Escolha as fotos e baixe em uma pasta .zip', fn: () => { view = 'baixar'; drawView(true); $('.gnav')?.scrollIntoView({ behavior: 'smooth' }); } },
       { icon: 'play', label: 'Modo telão', sub: 'Apresentação em tela cheia', fn: () => openSlideshow(sync, L.up) },
     ];
     if (!isStandalone()) items.unshift({ icon: 'inst', label: 'Instalar como app', sub: 'Acesso rápido pela tela inicial', fn: installApp });
@@ -1509,7 +1637,7 @@ async function Gallery(id, tok) {
   }
   function drawTabs() {
     const m = sync.meta, nF = sync.visible('foto').length, nP = sync.visible('previa').length, nR = sync.visible('recado').length;
-    const tabs = [['album', 'Álbum', nF + nP], ...(nP ? [['previa', m.albumPrevia, nP]] : []), ...(m.recados ? [['recados', 'Recados', nR]] : [])];
+    const tabs = [['album', 'Álbum', nF + nP], ...(nP ? [['previa', m.albumPrevia, nP]] : []), ...(m.recados ? [['recados', 'Recados', nR]] : []), ...(nF + nP ? [['baixar', '⬇ Baixar', '']] : [])];
     $('#gTabs').innerHTML = tabs.map(([k, l, n]) => `<button class="chip ${view === k ? 'on' : ''}" data-v="${k}">${esc(l)} <small>${n}</small></button>`).join('');
     $$('.gtab [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === view || (view === 'previa' && b.dataset.v === 'album')));
   }
@@ -1518,6 +1646,8 @@ async function Gallery(id, tok) {
     const m = sync.meta, tpl = TEMPLATES[m.template] || TEMPLATES.moderno;
     drawTabs();
     const fotos = sync.visible('foto'), prev = sync.visible('previa');
+    if (view !== 'baixar') dv = null;
+    if (view === 'baixar') { grid = null; if (rebuild || !dv) dv = downloadView(box, sync, 'guest'); else dv.draw(); return; }
     if (view === 'recados') {
       const notes = sync.visible('recado');
       box.innerHTML = `<section class="sec"><div class="sec-t"><h2 class="ttl">Mural de recados</h2></div>
@@ -1527,7 +1657,7 @@ async function Gallery(id, tok) {
     }
     const list = view === 'previa' ? prev : fotos;
     if (rebuild || !grid) {
-      box.innerHTML = `${view === 'album' && prev.length ? `<section class="sec"><div class="sec-t"><h2 class="ttl">${esc(m.albumPrevia)}</h2><button data-v="previa">Ver todas (${prev.length}) →</button></div><div class="strip" id="strip"></div></section>` : ''}
+      box.innerHTML = `${m.arquivado ? `<div style="margin-top:18px">${retentionNoticeHTML(sync)}</div>` : ''}${view === 'album' && prev.length ? `<section class="sec"><div class="sec-t"><h2 class="ttl">${esc(m.albumPrevia)}</h2><button data-v="previa">Ver todas (${prev.length}) →</button></div><div class="strip" id="strip"></div></section>` : ''}
         <section class="sec"><div class="sec-t"><h2 class="ttl">${view === 'previa' ? esc(m.albumPrevia) : 'Fotos dos convidados'}</h2>${view === 'previa' ? `<button data-v="album">← Voltar ao álbum</button>` : ''}</div><div id="grid"></div><div id="gEmpty"></div></section>`;
       grid = new PhotoGrid($('#grid'), tpl.grid, key => { const l = view === 'previa' ? sync.visible('previa') : sync.visible('foto'); openLightbox(l, l.findIndex(p => p.key === key)); });
       grid.animate = !initial;
@@ -1538,7 +1668,7 @@ async function Gallery(id, tok) {
       strip.innerHTML = prev.map(p => `<button class="tile" data-key="${p.key}" style="--ar:${((p.w && p.h) ? p.w / p.h : .75).toFixed(3)}"><span class="ph"><img src="${itemURL(p)}" alt="" onload="this.classList.add('ld')"></span></button>`).join('');
       strip.onclick = e => { const t = e.target.closest('.tile'); if (t) { const l = sync.visible('previa'); openLightbox(l, l.findIndex(p => p.key === t.dataset.key)); } };
     }
-    $('#gEmpty').innerHTML = list.length ? '' : (sync.loaded ? `<div class="gempty"><h2 class="ttl">O álbum está esperando você</h2><p>Ainda não há fotos por aqui. ${m.aberto ? 'Que tal enviar as primeiras?' : ''}</p>${m.aberto ? `<a class="btn lg" href="${upHref}">${ic('camera')} Enviar fotos</a>` : ''}</div>` : `<div class="gempty"><div class="spinner"></div></div>`);
+    $('#gEmpty').innerHTML = list.length ? '' : m.arquivado ? `<div class="gempty"><h2 class="ttl">Álbum arquivado</h2><p>O prazo terminou e as fotos foram retiradas da nuvem. Este aparelho não tem uma cópia salva.</p></div>` : (sync.loaded ? `<div class="gempty"><h2 class="ttl">O álbum está esperando você</h2><p>Ainda não há fotos por aqui. ${m.aberto ? 'Que tal enviar as primeiras?' : ''}</p>${m.aberto ? `<a class="btn lg" href="${upHref}">${ic('camera')} Enviar fotos</a>` : ''}</div>` : `<div class="gempty"><div class="spinner"></div></div>`);
   }
   const redraw = throttle(() => drawn && drawView(false), 200);
   sync.on('meta', () => { if (drawn) draw(); });
@@ -1583,7 +1713,7 @@ async function Upload(id, tok, mode) {
   function draw() { if (!alive()) return;
     const m = sync.meta; if (!m) return;
     applyEventLook(m, sync.assets); document.title = 'Enviar fotos · ' + m.nome; drawn = true;
-    if (!m.aberto) { app.innerHTML = msgScreen('lock', 'Envio encerrado', `O envio de fotos para "${m.nome}" foi encerrado. Você ainda pode ver o álbum.`, `<a class="btn" href="#/e/${id}/${enc}">${ic('images')} Ver álbum</a>`); return; }
+    if (!m.aberto || m.arquivado) { app.innerHTML = msgScreen('lock', 'Envio encerrado', `O envio de fotos para "${m.nome}" foi encerrado. Você ainda pode ver o álbum.`, `<a class="btn" href="#/e/${id}/${enc}">${ic('images')} Ver álbum</a>`); return; }
     app.innerHTML = `<div class="up">
       <header class="up-hero"><div class="hbg" data-asset="capa"></div><div class="up-hero-in"><p class="eyebrow light">${mode === 'recado' ? 'Deixe seu recado' : 'Envie suas fotos'}</p><h1 class="ttl">${esc(m.nome)}</h1>${dateLine(m) ? `<p class="sub">${esc(dateLine(m))}</p>` : ''}</div></header>
       <main class="up-main"><div class="card up-card" id="upCard"></div><p class="up-foot"><a href="#/e/${id}/${enc}">${ic('images', 16)} Ver o álbum do evento →</a></p></main>
@@ -1829,6 +1959,7 @@ function personalizeView(box, sync, role) {
       ${isAdmin ? sw('moderacao', 'Aprovar fotos antes de publicar', 'Fotos e recados de convidados só aparecem depois de aprovados.') : ''}</section>
     ${isAdmin ? `<section class="card pz-sec"><h3>Tipo de evento e anfitriões</h3><p class="muted">Define textos padrão e o que o painel dos anfitriões pode fazer.</p>
       <div class="grid2"><div class="field"><label class="f" for="pz_tipo">Tipo de evento</label><select id="pz_tipo" data-k="tipo">${Object.entries(TIPOS).map(([k, t]) => `<option value="${k}" ${w.tipo === k ? 'selected' : ''}>${t.emoji} ${t.nome}</option>`).join('')}</select></div>${fields('hostLabel', 'Como chamar os anfitriões', { max: 30, ph: 'Noivos' })}</div>
+      ${fields('retencao', 'Dias online após o evento', { type: 'number', hint: 'Passado esse prazo, as fotos são excluídas da nuvem automaticamente e ficam salvas apenas nos aparelhos. Padrão: 60 dias.' })}
       ${sw('host.personalizar', 'Anfitriões podem personalizar o site', 'Modelo, cores, capa, fundo e textos.')}
       ${sw('host.moderar', 'Anfitriões podem moderar fotos e recados', 'Aprovar e ocultar o que os convidados enviam.')}</section>` : ''}
     <div class="savebar"><button class="btn lg" id="pzSave">${ic('check')} Salvar alterações</button><a class="btn lg ghost" href="${esc(L.e)}" target="_blank" rel="noopener">${ic('ext')} Ver site</a></div>
@@ -1882,12 +2013,12 @@ function personalizeView(box, sync, role) {
       if (w.fundo.tipo === 'imagem' && !cur('fundo')) { w.fundo.tipo = 'template'; toast('Nenhuma imagem de fundo escolhida — usando o fundo do modelo.'); }
       if (sync.meta.capa && !('capa' in pend) && !sync.assetRaw.capa) pend.capa = sync.meta.capa;
       for (const k of Object.keys(pend)) await setAsset(sync, k, pend[k]);
-      const keys = ['nome', 'anfitrioes', 'data', 'hora', 'local', 'descricao', 'mensagem', 'albumPrevia', 'template', 'cor', 'fundo', 'aberto', 'recados', 'contagem', ...(isAdmin ? ['moderacao', 'tipo', 'hostLabel', 'host'] : [])];
+      const keys = ['nome', 'anfitrioes', 'data', 'hora', 'local', 'descricao', 'mensagem', 'albumPrevia', 'template', 'cor', 'fundo', 'aberto', 'recados', 'contagem', ...(isAdmin ? ['moderacao', 'tipo', 'hostLabel', 'host', 'retencao'] : [])];
       const turningOnMod = isAdmin && w.moderacao && !sync.meta.moderacao;
       await mutateMeta(sync, m => {
         // ao ligar a aprovação, o que já estava publicado continua publicado
         if (turningOnMod && !m.moderacao) sync.list(['foto', 'recado']).forEach(p => { if (!m.aprovadas.includes(p.file)) m.aprovadas.push(p.file); });
-        keys.forEach(k => { m[k] = structuredClone(w[k]); }); m.nome = m.nome.trim(); m.capa = '';
+        keys.forEach(k => { m[k] = structuredClone(w[k]); }); m.nome = m.nome.trim(); m.capa = ''; m.retencao = Math.max(1, parseInt(m.retencao) || 60);
       });
       Object.keys(pend).forEach(k => delete pend[k]);
       toast('Alterações salvas! O site já foi atualizado.', 'ok');
@@ -1912,6 +2043,7 @@ async function Host(id, tok, tab = 'inicio') {
       ...(m.host.moderar ? [{ id: 'fotos', label: 'Fotos e recados', short: 'Fotos', icon: 'grid', href: base + '/fotos', badge: pendN() || '' }] : []),
       ...(m.host.personalizar ? [{ id: 'personalizar', label: 'Personalizar site', short: 'Site', icon: 'palette', href: base + '/personalizar' }] : []),
       { id: 'convidar', label: 'Convidar', icon: 'share', href: base + '/convidar' },
+      { id: 'baixar', label: 'Baixar fotos', short: 'Baixar', icon: 'download', href: base + '/baixar' },
     ];
   }
   const pendN = () => sync.list(['foto', 'recado']).filter(p => itemStatus(sync.meta, p) === 'pendente').length;
@@ -1919,7 +2051,7 @@ async function Host(id, tok, tab = 'inicio') {
     const m = sync.meta; if (!m) return;
     if ((tab === 'fotos' && !m.host.moderar) || (tab === 'personalizar' && !m.host.personalizar)) tab = 'inicio';
     applySysLook(m.cor); setPageBg({ tipo: 'template' }); document.title = `${m.hostLabel} · ${m.nome}`;
-    const titles = { inicio: `Olá, ${m.anfitrioes || m.hostLabel.toLowerCase()}!`, previa: m.albumPrevia, fotos: 'Fotos e recados', personalizar: 'Personalizar site', convidar: 'Convidar' };
+    const titles = { inicio: `Olá, ${m.anfitrioes || m.hostLabel.toLowerCase()}!`, previa: m.albumPrevia, fotos: 'Fotos e recados', personalizar: 'Personalizar site', convidar: 'Convidar', baixar: 'Baixar fotos' };
     app.innerHTML = shellHTML({
       nav: nav(m), active: tab, title: titles[tab], sub: m.nome,
       actions: `<a class="icon-btn" href="${esc(L.e)}" target="_blank" rel="noopener" title="Ver site">${ic('ext')}</a>`,
@@ -1936,7 +2068,7 @@ async function Host(id, tok, tab = 'inicio') {
       const nF = sync.list('foto').length, nP = sync.list('previa').length, nR = sync.list('recado').length, pend = pendN();
       const guests = new Set(sync.list(['foto', 'recado']).map(p => (p.autor || '').toLowerCase()).filter(Boolean)).size;
       const notes = sync.visible('recado').slice(0, 3);
-      box.innerHTML = `<div class="card hello" data-asset="capa"><p class="eyebrow light">${esc(TIPOS[m.tipo].nome)}${m.data ? ' · ' + esc(fmtDate(m.data)) : ''}</p><h2>${esc(m.nome)}</h2><div data-cd style="margin-top:8px"></div></div>
+      box.innerHTML = `${retentionNoticeHTML(sync, base + '/baixar')}<div class="card hello" data-asset="capa"><p class="eyebrow light">${esc(TIPOS[m.tipo].nome)}${m.data ? ' · ' + esc(fmtDate(m.data)) : ''}</p><h2>${esc(m.nome)}</h2><div data-cd style="margin-top:8px"></div></div>
         ${pend && m.host.moderar ? `<a class="alert info" href="${base}/fotos" style="margin-bottom:16px;text-decoration:none">${ic('info')}<div><b>${plural(pend, 'item aguardando', 'itens aguardando')} sua aprovação.</b> Toque para revisar.</div></a>` : ''}
         <div class="stats"><div class="card stat"><b>${nF}</b><span>Fotos dos convidados</span></div><div class="card stat"><b>${nP}</b><span>${esc(m.albumPrevia)}</span></div><div class="card stat"><b>${nR}</b><span>Recados</span></div><div class="card stat"><b>${guests}</b><span>Convidados</span></div></div>
         <div class="quick">
@@ -1953,6 +2085,7 @@ async function Host(id, tok, tab = 'inicio') {
       $$('[data-inst]', box).forEach(b => b.onclick = installApp);
       view = null;
     } else if (tab === 'previa') { view = previaView(box, sync, 'host'); }
+    else if (tab === 'baixar') { view = downloadView(box, sync, 'host'); }
     else if (tab === 'fotos') {
       box.innerHTML = `<div class="seg" id="hk"><button class="on" data-k="foto">Fotos dos convidados</button><button data-k="recado">Recados</button></div><div id="hm"></div>`;
       let mv = moderationView($('#hm', box), sync, 'host', 'foto');
@@ -1969,7 +2102,7 @@ async function Host(id, tok, tab = 'inicio') {
   sync.on('assets', () => { if (drawn) paintAssets(app, sync.assets); });
   sync.on('items', redraw);
   if (sync.meta) draw(); else { applySysLook(); app.innerHTML = loadingScreen('Abrindo painel…'); }
-  try { await sync.refresh({ force: true }); if (!drawn) draw(); else redraw(); }
+  try { await sync.refresh({ force: true }); if (!drawn) draw(); else redraw(); autoArchive(sync, () => alive() && draw()); }
   catch (e) { if (!drawn) { app.innerHTML = msgScreen('alert', 'Não foi possível abrir o painel', e.message, `<button class="btn" onclick="location.reload()">${ic('refresh')} Tentar novamente</button>`); return; } toast(e.message, 'err'); }
   startPolling(() => sync.refresh(), 30000);
 }
@@ -2059,7 +2192,7 @@ function newEventModal() {
 function evCard(ev) {
   const m = ev.meta, c = m.cor;
   return `<a class="card ev-card" href="#/admin/evento/${ev.id}/resumo" data-name="${esc((m.nome + ' ' + m.anfitrioes + ' ' + m.local).toLowerCase())}">
-    <div class="ev-cover ${ev.capa ? '' : 'noimg'}" style="--c:${esc(c)};${ev.capa ? `background-image:url('${ev.capa}')` : ''}"><span class="pill ${m.aberto ? '' : 'off'}"><span class="dot"></span>${m.aberto ? 'Recebendo fotos' : 'Envio encerrado'}</span><span class="tipo">${TIPOS[m.tipo].emoji} ${esc(TIPOS[m.tipo].nome)}</span></div>
+    <div class="ev-cover ${ev.capa ? '' : 'noimg'}" style="--c:${esc(c)};${ev.capa ? `background-image:url('${ev.capa}')` : ''}"><span class="pill ${m.aberto && !m.arquivado ? '' : 'off'}"><span class="dot"></span>${m.arquivado ? 'Arquivado · só no aparelho' : expiryInfo(m).expired ? 'Prazo encerrado' : m.aberto ? 'Recebendo fotos' : 'Envio encerrado'}</span><span class="tipo">${TIPOS[m.tipo].emoji} ${esc(TIPOS[m.tipo].nome)}</span></div>
     <div class="ev-body"><h3>${esc(m.nome)}</h3><div class="ev-meta">${m.data ? `<span>${ic('cal', 15)}${esc(fmtDate(m.data))}</span>` : ''}${m.local ? `<span>${ic('pin', 15)}${esc(m.local)}</span>` : ''}</div>
     <div class="ev-count"><span>${esc(TEMPLATES[m.template]?.nome || '')} · ${ev.count ?? 0} fotos</span><b>${ev.count ?? '—'}</b></div></div></a>`;
 }
@@ -2102,7 +2235,9 @@ async function AdminHome() {
     for (const c of cached) if (!out.find(o => o.id === c.id)) await DB.del('events', c.id);
     render(out);
     // cria links curtos que faltam, um evento por vez, em segundo plano
-    (async () => { for (const ev of out) { if (!location.hash.match(/^#\/admin\/?$|^$|^#$/)) break; const sy = getSync(ev.id, state.cfg.token, true); await sy.loadCache(); if (!sy.meta) sy.meta = ev.meta; if (needsShort(sy)) await autoShorten(sy); } })();
+    (async () => { for (const ev of out) { if (!location.hash.match(/^#\/admin\/?$|^$|^#$/)) break; const sy = getSync(ev.id, state.cfg.token, true); await sy.loadCache(); if (!sy.meta) sy.meta = ev.meta; if (needsShort(sy)) await autoShorten(sy); }
+      for (const ev of out) { if (!alive()) break; if (ev.meta.arquivado || !expiryInfo(ev.meta).expired) continue; const sy = getSync(ev.id, state.cfg.token); await sy.loadCache(); try { await sy.refresh({ force: true }); await autoArchive(sy); } catch (e) { console.warn(e); } }
+    })();
   } catch (e) {
     toast(e.message, 'err');
     if (e.code === 'auth') { state.cfg.token = null; await DB.del('kv', 'token'); route(); }
@@ -2155,7 +2290,7 @@ async function AdminEvent(id, tab = 'resumo') {
   }
   function drawTabs() { if (!alive()) return;
     const pend = sync.list(['foto', 'recado']).filter(p => itemStatus(sync.meta, p) === 'pendente').length;
-    $('#subtabs').innerHTML = subtabsHTML([['resumo', 'Resumo'], ['fotos', 'Fotos', sync.list('foto').length + (pend ? ` · ${pend} pendentes` : '')], ['previa', sync.meta.albumPrevia, sync.list('previa').length], ['recados', 'Recados', sync.list('recado').length], ['personalizar', 'Personalizar']], tab, k => `${base}/${k}`);
+    $('#subtabs').innerHTML = subtabsHTML([['resumo', 'Resumo'], ['fotos', 'Fotos', sync.list('foto').length + (pend ? ` · ${pend} pendentes` : '')], ['previa', sync.meta.albumPrevia, sync.list('previa').length], ['recados', 'Recados', sync.list('recado').length], ['personalizar', 'Personalizar'], ['baixar', 'Baixar fotos']], tab, k => `${base}/${k}`);
   }
   function drawTab() { if (!alive()) return;
     const box = $('#content'), m = sync.meta;
@@ -2165,7 +2300,8 @@ async function AdminEvent(id, tab = 'resumo') {
       box.innerHTML = `<div class="card ev-head"><div class="ev-cover" style="--c:${esc(m.cor)}" data-asset="capa"></div>
         <div class="ev-head-body"><div class="row wrap-row" style="gap:6px"><span class="pill ${m.aberto ? '' : 'off'}" style="background:var(--soft)"><span class="dot"></span>${m.aberto ? 'Recebendo fotos' : 'Envio encerrado'}</span><span class="pill" style="background:var(--soft)">${ic('palette', 13)} ${esc(TEMPLATES[m.template].nome)}</span>${m.moderacao ? `<span class="pill" style="background:var(--soft)">${ic('check', 13)} Aprovação ativada</span>` : ''}</div>
           <h2>${esc(m.nome)}</h2><div class="ev-meta">${m.anfitrioes ? `<span>${ic('heart', 15)}${esc(m.anfitrioes)}</span>` : ''}${m.data ? `<span>${ic('cal', 15)}${esc(fmtDate(m.data))}${m.hora ? ' · ' + esc(m.hora) : ''}</span>` : ''}${m.local ? `<span>${ic('pin', 15)}${esc(m.local)}</span>` : ''}</div>
-          <div class="row wrap-row" style="margin-top:4px;gap:8px"><a class="btn sm" href="${base}/personalizar">${ic('palette', 16)} Personalizar</a><button class="btn sm ghost" id="eToggle">${ic(m.aberto ? 'lock' : 'upload', 16)} ${m.aberto ? 'Encerrar envios' : 'Reabrir envios'}</button><button class="btn sm ghost" id="eTv">${ic('play', 16)} Telão</button></div></div></div>
+          <div class="row wrap-row" style="margin-top:4px;gap:8px"><a class="btn sm" href="${base}/personalizar">${ic('palette', 16)} Personalizar</a>${m.arquivado ? '' : `<button class="btn sm ghost" id="eToggle">${ic(m.aberto ? 'lock' : 'upload', 16)} ${m.aberto ? 'Encerrar envios' : 'Reabrir envios'}</button>`}<button class="btn sm ghost" id="eTv">${ic('play', 16)} Telão</button></div></div></div>
+        ${retentionNoticeHTML(sync, base + '/baixar')}
         ${pend ? `<a class="alert info" href="${base}/fotos" style="margin-bottom:16px;text-decoration:none">${ic('info')}<div><b>${plural(pend, 'item aguardando', 'itens aguardando')} aprovação.</b> Toque para revisar.</div></a>` : ''}
         <div class="stats"><div class="card stat"><b>${sync.list('foto').length}</b><span>Fotos dos convidados</span></div><div class="card stat"><b>${sync.list('previa').length}</b><span>${esc(m.albumPrevia)}</span></div><div class="card stat"><b>${sync.list('recado').length}</b><span>Recados</span></div><div class="card stat"><b>${guests}</b><span>Convidados</span></div></div>
         <div class="sec-head"><h2>Links e QR codes</h2></div>
@@ -2175,7 +2311,7 @@ async function AdminEvent(id, tab = 'resumo') {
       paintAssets(box, sync.assets); bindLinkCards(box, m);
       $('#eSlug')?.addEventListener('click', () => slugModal(sync, () => drawTab()));
       $('#eShortRetry')?.addEventListener('click', () => { autoTried.delete(sync.id); runAuto(); });
-      $('#eToggle').onclick = async () => { try { await mutateMeta(sync, mm => { mm.aberto = !mm.aberto; }); toast(sync.meta.aberto ? 'Envios reabertos' : 'Envios encerrados', 'ok'); drawTab(); } catch (e) { toast(e.message, 'err'); } };
+      if ($('#eToggle')) $('#eToggle').onclick = async () => { try { await mutateMeta(sync, mm => { mm.aberto = !mm.aberto; }); toast(sync.meta.aberto ? 'Envios reabertos' : 'Envios encerrados', 'ok'); drawTab(); } catch (e) { toast(e.message, 'err'); } };
       $('#eTv').onclick = () => openSlideshow(sync, L.up);
       $('#eDel').onclick = deleteEvent;
       view = null;
@@ -2183,6 +2319,7 @@ async function AdminEvent(id, tab = 'resumo') {
     else if (tab === 'previa') view = previaView(box, sync, 'admin');
     else if (tab === 'recados') view = moderationView(box, sync, 'admin', 'recado');
     else if (tab === 'personalizar') { personalizeView(box, sync, 'admin'); view = null; }
+    else if (tab === 'baixar') view = downloadView(box, sync, 'admin');
   }
   async function deleteEvent() {
     if (!await confirmDlg('Excluir este evento?', `"${sync.meta.nome}" e todos os ${sync.items.size} itens serão apagados do GitHub. Essa ação não pode ser desfeita.`, 'Excluir tudo', true)) return;
@@ -2202,7 +2339,7 @@ async function AdminEvent(id, tab = 'resumo') {
   sync.on('items', redraw);
   if (sync.meta) draw(); else { applySysLook(); app.innerHTML = loadingScreen('Carregando evento…'); }
   const runAuto = () => { if (!needsShort(sync) || !state.short.auto || state.short.provider === 'off') return; const st = $('#shortStatus'); if (st) st.textContent = 'Criando links curtos…'; autoShorten(sync, err => { if (err) toast('Não foi possível criar os links curtos: ' + err.message, 'err'); else toast('Links curtos criados ✨', 'ok'); if (tab === 'resumo') drawTab(); }); };
-  try { await sync.refresh({ force: true }); if (!drawn) draw(); else redraw(); runAuto(); }
+  try { await sync.refresh({ force: true }); if (!drawn) draw(); else redraw(); runAuto(); autoArchive(sync, () => alive() && draw()); }
   catch (e) {
     if (!drawn) { adminShell('eventos', { title: 'Evento', back: '#/admin' }); $('#content').innerHTML = msgScreen('alert', 'Não foi possível abrir o evento', e.message, `<a class="btn" href="#/admin">${ic('back')} Voltar</a>`); }
     else toast(e.message, 'err');
@@ -2351,6 +2488,7 @@ async function route() {
     const last = await DB.get('kv', 'lastRoute'); if (last) history.replaceState(null, '', location.pathname + location.search + last);
   }
   window.addEventListener('hashchange', route);
+  try { navigator.storage?.persist?.(); } catch {}
   registerSW();
   route();
 })();
