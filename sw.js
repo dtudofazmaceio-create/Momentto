@@ -2,7 +2,7 @@
    - Guarda o "esqueleto" do app para abrir rápido e funcionar offline
    - Bibliotecas e fontes (CDN) ficam em cache
    - A API do GitHub nunca é cacheada aqui (o app usa o IndexedDB para os dados) */
-const VERSION = 'fotoevento-v2.0.0';
+const VERSION = 'fotoevento-v2.1.0';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 const CDN = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 

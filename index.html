@@ -111,6 +111,11 @@ label.f{display:block;font-weight:600;font-size:14px;margin:0 0 7px}
 .modal-bg{position:fixed;inset:0;background:rgba(14,12,10,.52);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;display:grid;place-items:center;padding:16px;animation:fade .2s}
 .modal{background:var(--card);color:var(--ink);border-radius:26px;padding:26px;width:100%;max-width:470px;max-height:calc(100dvh - 32px);overflow:auto;box-shadow:0 30px 80px -20px rgba(0,0,0,.45);animation:up .25s cubic-bezier(.2,.9,.3,1.1)}
 .modal.wide{max-width:660px}
+.sheet-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.sheet-prev{background:var(--soft);border-radius:16px;padding:12px}.sheet-prev canvas{width:100%;height:auto;display:block;background:#fff;border-radius:4px;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)}
+.sheet-texts{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}.sheet-texts summary{cursor:pointer;font-weight:600;font-size:14px;margin-bottom:10px}
+.sheet-msg{display:grid;gap:8px;margin-bottom:14px}.sheet-msg textarea{resize:vertical}
+@media(max-width:600px){.sheet-wrap{grid-template-columns:1fr}.sheet-prev{max-width:300px;margin:0 auto;width:100%}}
 .modal h3{font-size:24px;margin-bottom:8px}
 .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px}
 @keyframes fade{from{opacity:0}}@keyframes up{from{opacity:0;transform:translateY(18px)}}
@@ -1920,13 +1925,14 @@ function linkCard(kind, url, m, { hl = false } = {}) {
   }[kind];
   return `<div class="card link-card ${hl ? 'hl' : ''}"><div class="qr-box">${qrSVG(url)}</div><div class="link-body">
     <h3>${esc(info[0])}</h3><p class="muted">${esc(info[1])}</p><div class="url-box">${url.includes('#/') ? `<input readonly value="${esc(url)}" onclick="this.select()">` : `<div class="short-url">${ic('check', 15)}<span>${esc(url.replace(/^https?:\/\//, ''))}</span></div>`}</div>
-    <div class="row wrap-row" style="gap:8px"><button class="btn sm" data-copy="${esc(url)}">${ic('copy', 16)} Copiar</button><a class="btn sm wa" href="${esc(waLink(info[2]))}" target="_blank" rel="noopener">${ic('wa', 16)} WhatsApp</a><a class="btn sm ghost" href="${esc(url)}" target="_blank" rel="noopener">${ic('ext', 16)} Abrir</a><button class="btn sm ghost" data-qrdl="${esc(url)}" data-kind="${kind}">${ic('download', 16)} QR</button>${kind !== 'h' ? `<button class="btn sm ghost" data-print="${kind}" data-url="${esc(url)}">${ic('printer', 16)} Placa</button>` : ''}</div>
+    <div class="row wrap-row" style="gap:8px"><button class="btn sm" data-copy="${esc(url)}">${ic('copy', 16)} Copiar</button><a class="btn sm wa" href="${esc(waLink(info[2]))}" target="_blank" rel="noopener">${ic('wa', 16)} WhatsApp</a><a class="btn sm ghost" href="${esc(url)}" target="_blank" rel="noopener">${ic('ext', 16)} Abrir</a><button class="btn sm ghost" data-qrdl="${esc(url)}" data-kind="${kind}">${ic('download', 16)} QR</button>${kind !== 'h' ? `<button class="btn sm ghost" data-print="${kind}" data-url="${esc(url)}">${ic('printer', 16)} Placa</button>` : ''}${kind === 'up' ? `<button class="btn sm ghost" data-sheet="${esc(url)}">${ic('grid', 16)} Vários por folha (PDF)</button>` : ''}</div>
   </div></div>`;
 }
 function bindLinkCards(root, m) {
   $$('[data-copy]', root).forEach(b => b.onclick = () => copyText(b.dataset.copy));
   $$('[data-qrdl]', root).forEach(b => b.onclick = async () => { try { saveBlob(await qrPNG(b.dataset.qrdl), `qrcode-${{ up: 'envio', e: 'site', h: 'painel' }[b.dataset.kind]}-${slug(m.nome)}.png`); } catch (e) { toast(e.message, 'err'); } });
   $$('[data-print]', root).forEach(b => b.onclick = () => printCard(m, b.dataset.url, b.dataset.print));
+  $$('[data-sheet]', root).forEach(b => b.onclick = () => sheetModal(m, b.dataset.sheet));
 }
 function printCard(meta, url, kind) {
   const w = window.open('', '_blank');
@@ -1946,6 +1952,305 @@ function printCard(meta, url, kind) {
   <div><h2>${up ? 'Aponte a câmera do celular' : 'Escaneie o QR code'}</h2><p>${up ? 'Envie as fotos que você tirou e deixe um recado. Elas aparecem no álbum na hora!' : 'Acesse o álbum completo com as fotos de todos os convidados.'}</p></div></div>
   <script>window.onload=()=>setTimeout(()=>print(),700)<\/script></body></html>`);
   w.document.close();
+}
+
+/* ---------------- Folha A4 com vários QR codes de envio (PDF) ---------------- */
+const SHEET_LAYOUTS = { 4: [2, 2], 6: [2, 3], 9: [3, 3] };
+const SHEET_ONE_WEIGHT = ["'Abril Fatface'", "'Anton'", "'Great Vibes'", "'Italiana'", "'Lobster'", "'Pacifico'", "'Righteous'"];
+function sheetDefaults(m) {
+  return [
+    { eyebrow: 'Compartilhe o momento', title: 'Envie suas fotos!', desc: 'Aponte a câmera do celular para o QR code, escolha as fotos e deixe um recado. Sem instalar nada.', btn: 'Enviar minhas fotos' },
+    { eyebrow: 'Álbum colaborativo', title: 'Cada clique vira lembrança', desc: `Tirou uma foto bonita? Envie agora e ela aparece no álbum ${m.anfitrioes ? 'de ' + m.anfitrioes : 'do evento'} na hora.`, btn: 'Escaneie e envie' },
+  ];
+}
+function hexRGB(h) {
+  h = String(h || '').replace('#', '');
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  const n = parseInt(h, 16);
+  return isNaN(n) || h.length !== 6 ? [183, 121, 31] : [n >> 16 & 255, n >> 8 & 255, n & 255];
+}
+const rgbCss = (c, a = 1) => `rgba(${c.map(Math.round).join(',')},${a})`;
+const mixRGB = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+function lumRGB(c) { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]); }
+function sheetPalette(cor) {
+  const acc = hexRGB(cor);
+  let deep = acc;
+  for (let t = .08; lumRGB(deep) > .16 && t < .9; t += .08) deep = mixRGB(acc, [0, 0, 0], t);
+  return {
+    acc, deep,
+    paper: mixRGB([252, 250, 245], acc, .035),
+    ink: mixRGB([24, 26, 38], deep, .18),
+    muted: [78, 78, 90],
+    line: mixRGB(acc, [255, 255, 255], .1),
+  };
+}
+function qrModules(text) {
+  if (typeof qrcode !== 'function') throw new AppError('Biblioteca de QR code não carregou');
+  const q = qrcode(0, 'H'); q.addData(text); q.make();
+  const n = q.getModuleCount();
+  let k = Math.round(n * .24); if ((n - k) % 2) k++;           // área central (logo), alinhada à grade
+  const h0 = (n - k) / 2, hole = (r, c) => r >= h0 && r < h0 + k && c >= h0 && c < h0 + k;
+  return { n, k, dark: (r, c) => !hole(r, c) && q.isDark(r, c) };
+}
+function fitFont(ctx, text, font, size, maxW, maxLines, minSize, lh = 1.15) {
+  for (let s = size; ; s *= .94) {
+    ctx.font = font(s);
+    const lines = wrapLines(ctx, text, maxW);
+    if (lines.length <= maxLines || s * .94 < minSize) {
+      if (lines.length > maxLines) { lines.length = maxLines; let l = lines[maxLines - 1]; while (l && ctx.measureText(l + '…').width > maxW) l = l.slice(0, -1); lines[maxLines - 1] = l.trimEnd() + '…'; }
+      return { lines, size: s, lh: s * lh };
+    }
+  }
+}
+function wrapLines(ctx, text, maxW) {
+  const out = [];
+  for (const para of String(text || '').split('\n')) {
+    let cur = '';
+    for (const w of para.split(/\s+/).filter(Boolean)) {
+      const t = cur ? cur + ' ' + w : w;
+      if (ctx.measureText(t).width <= maxW || !cur) cur = t; else { out.push(cur); cur = w; }
+    }
+    if (cur) out.push(cur);
+  }
+  return out.length ? out : [''];
+}
+function spacedWidth(ctx, t, sp) { return [...t].reduce((a, ch) => a + ctx.measureText(ch).width + sp, -sp); }
+function spacedText(ctx, t, cx, y, sp, maxW) {
+  while (t.length > 1 && spacedWidth(ctx, t, sp) > maxW) t = t.slice(0, -2).trimEnd() + '…';
+  let x = cx - spacedWidth(ctx, t, sp) / 2;
+  ctx.textAlign = 'left';
+  for (const ch of t) { ctx.fillText(ch, x, y); x += ctx.measureText(ch).width + sp; }
+  ctx.textAlign = 'center';
+}
+function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+function diamond(ctx, cx, cy, r) { ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx + r, cy); ctx.lineTo(cx, cy + r); ctx.lineTo(cx - r, cy); ctx.closePath(); ctx.fill(); }
+function cameraGlyph(ctx, cx, cy, size, color, lw) {
+  ctx.save(); ctx.translate(cx - size / 2, cy - size / 2); ctx.scale(size / 24, size / 24);
+  ctx.strokeStyle = color; ctx.lineWidth = lw / (size / 24); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.stroke(new Path2D('M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z'));
+  ctx.beginPath(); ctx.arc(12, 13, 3, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+}
+
+/* Desenha um cartão. Retorna a altura do conteúdo. Com draw=false só mede. */
+function drawSheetCard(ctx, X, Y, W, H, o, draw = true) {
+  const { meta: m, pal, msg, qr } = o;
+  const t = TEMPLATES[m.template] ? m.template : 'moderno', T = TEMPLATES[t];
+  const nameF = T.font, nameW = SHEET_ONE_WEIGHT.includes(nameF) ? 400 : 700;
+  const headF = T.script ? "'Playfair Display'" : nameF, headW = SHEET_ONE_WEIGHT.includes(headF) ? 400 : 700;
+  const body = "'DM Sans',system-ui,sans-serif";
+  let u = Math.min(W, H * .7) / 100;
+  const run = (u, oy, paint) => {
+    const cx = X + W / 2, maxW = Math.min(W - 16 * u, 86 * u);
+    let y = oy;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    // ícone
+    const d = 10 * u;
+    if (paint) {
+      ctx.fillStyle = rgbCss(pal.acc, .14); ctx.beginPath(); ctx.arc(cx, y + d / 2, d / 2, 0, Math.PI * 2); ctx.fill();
+      cameraGlyph(ctx, cx, y + d / 2 + .1 * u, d * .5, rgbCss(pal.deep), .55 * u);
+    }
+    y += d + 3 * u;
+    // nome do evento
+    const nm = fitFont(ctx, T.upper ? m.nome.toUpperCase() : m.nome, s => `${t === 'classico' ? 'italic ' : ''}${nameW} ${s}px ${nameF},serif`, (T.script ? 10 : 7.4) * u, maxW, 2, 4 * u, 1.08);
+    ctx.font = `${t === 'classico' ? 'italic ' : ''}${nameW} ${nm.size}px ${nameF},serif`;
+    for (const l of nm.lines) { y += nm.lh; if (paint) { ctx.fillStyle = rgbCss(pal.ink); ctx.fillText(l, cx, y - nm.lh * .2); } }
+    y += 1.6 * u;
+    // subtítulo (data · local)
+    const sub = (dateLine(m) || 'Álbum de fotos').toUpperCase();
+    ctx.font = `600 ${2.25 * u}px ${body}`;
+    y += 2.25 * u;
+    if (paint) { ctx.fillStyle = rgbCss(pal.deep, .85); spacedText(ctx, sub, cx, y, .55 * u, maxW); }
+    y += 3 * u;
+    // divisor
+    if (paint) {
+      ctx.strokeStyle = rgbCss(pal.line); ctx.lineWidth = .3 * u; ctx.beginPath();
+      ctx.moveTo(cx - 15 * u, y); ctx.lineTo(cx - 2 * u, y); ctx.moveTo(cx + 2 * u, y); ctx.lineTo(cx + 15 * u, y); ctx.stroke();
+      ctx.fillStyle = rgbCss(pal.acc); diamond(ctx, cx, y, .9 * u);
+    }
+    y += 3.4 * u;
+    // eyebrow
+    if (msg.eyebrow) {
+      ctx.font = `700 ${2.35 * u}px ${body}`; y += 2.35 * u;
+      if (paint) { ctx.fillStyle = rgbCss(pal.acc); if (lumRGB(pal.acc) > .45) ctx.fillStyle = rgbCss(pal.deep); spacedText(ctx, msg.eyebrow.toUpperCase(), cx, y, .5 * u, maxW); }
+      y += 2.2 * u;
+    }
+    // título
+    const hd = fitFont(ctx, msg.title, s => `${headW} ${s}px ${headF},serif`, 8.6 * u, maxW, 2, 4.5 * u, 1.06);
+    ctx.font = `${headW} ${hd.size}px ${headF},serif`;
+    for (const l of hd.lines) { y += hd.lh; if (paint) { ctx.fillStyle = rgbCss(pal.ink); ctx.fillText(l, cx, y - hd.lh * .16); } }
+    y += 2.2 * u;
+    // descrição
+    if (msg.desc) {
+      const ds = fitFont(ctx, msg.desc, s => `400 ${s}px ${body}`, 3.15 * u, maxW, 3, 2.4 * u, 1.38);
+      ctx.font = `400 ${ds.size}px ${body}`;
+      for (const l of ds.lines) { y += ds.lh; if (paint) { ctx.fillStyle = rgbCss(pal.muted); ctx.fillText(l, cx, y - ds.lh * .25); } }
+    }
+    y += 3.6 * u;
+    // QR code
+    const qs = 41 * u, pad = 2.8 * u, cap = 4.6 * u, bw = qs + pad * 2, bh = qs + pad * 2 + cap, bx = cx - bw / 2;
+    if (paint) {
+      ctx.save(); ctx.shadowColor = 'rgba(20,16,10,.16)'; ctx.shadowBlur = 3 * u; ctx.shadowOffsetY = .8 * u;
+      ctx.fillStyle = '#fff'; rrect(ctx, bx, y, bw, bh, 3 * u); ctx.fill(); ctx.restore();
+      ctx.strokeStyle = rgbCss(pal.line, .9); ctx.lineWidth = .3 * u; rrect(ctx, bx, y, bw, bh, 3 * u); ctx.stroke();
+      const cell = qs / qr.n, qx = cx - qs / 2, qy = y + pad;
+      o.qrRects.push({ x: qx, y: qy, cell });
+      if (!o.vectorQR) {
+        ctx.fillStyle = rgbCss(pal.ink);
+        for (let r = 0; r < qr.n; r++) for (let c = 0; c < qr.n; c++) if (qr.dark(r, c)) ctx.fillRect(qx + c * cell, qy + r * cell, cell + .02, cell + .02);
+      }
+      // logo central
+      const ls = qr.k * cell, lx = cx - ls / 2, ly = qy + qs / 2 - ls / 2, li = ls * .14;
+      ctx.fillStyle = rgbCss(pal.deep); rrect(ctx, lx + li, ly + li, ls - li * 2, ls - li * 2, ls * .2); ctx.fill();
+      cameraGlyph(ctx, cx, qy + qs / 2, ls * .46, '#fff', ls * .05);
+      ctx.fillStyle = rgbCss(pal.ink); ctx.font = `700 ${1.75 * u}px ${body}`;
+      spacedText(ctx, 'APONTE A CÂMERA DO CELULAR', cx, y + pad + qs + cap * .62, .32 * u, bw - 2 * u);
+    }
+    y += bh + 4 * u;
+    // botão
+    if (msg.btn) {
+      ctx.font = `700 ${2.9 * u}px ${body}`;
+      const bt = msg.btn, tw = Math.min(ctx.measureText(bt).width, maxW - 8 * u), pw = tw + 8 * u, ph = 6.2 * u;
+      if (paint) {
+        ctx.fillStyle = rgbCss(pal.deep); rrect(ctx, cx - pw / 2, y, pw, ph, ph / 2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.fillText(bt, cx, y + ph * .66, maxW - 8 * u);
+      }
+      y += ph;
+    }
+    return y - oy;
+  };
+  const inset = 6.5 * u, avail = H - inset * 2 - 4 * u;
+  let h = run(u, 0, false);
+  if (h > avail) { u *= avail / h; h = run(u, 0, false); }
+  if (!draw) return h;
+  // fundo, moldura e marca d'água
+  ctx.save(); ctx.beginPath(); ctx.rect(X, Y, W, H); ctx.clip();
+  ctx.fillStyle = rgbCss(pal.paper); ctx.fillRect(X, Y, W, H);
+  ctx.save(); ctx.globalAlpha = .07; cameraGlyph(ctx, X + W * .82, Y + H * .8, W * .62, rgbCss(pal.deep), W * .012); ctx.restore();
+  const f1 = 3.2 * u, f2 = 4.6 * u;
+  ctx.strokeStyle = rgbCss(pal.line); ctx.lineWidth = .32 * u; ctx.strokeRect(X + f1, Y + f1, W - f1 * 2, H - f1 * 2);
+  ctx.strokeStyle = rgbCss(pal.line, .35); ctx.lineWidth = .2 * u; ctx.strokeRect(X + f2, Y + f2, W - f2 * 2, H - f2 * 2);
+  ctx.fillStyle = rgbCss(pal.acc);
+  for (const [a, b] of [[X + f1, Y + f1], [X + W - f1, Y + f1], [X + f1, Y + H - f1], [X + W - f1, Y + H - f1]]) diamond(ctx, a, b, .9 * u);
+  run(u, Y + (H - h) / 2, true);
+  ctx.restore();
+  return h;
+}
+
+/* Desenha a folha A4 inteira no canvas (largura px). */
+async function renderSheet(meta, url, opt, pxW, vectorQR = false) {
+  const t = TEMPLATES[meta.template] ? meta.template : 'moderno', T = TEMPLATES[t];
+  const fams = [T.font, T.script ? "'Playfair Display'" : T.font, "'DM Sans'"];
+  try { await Promise.race([Promise.all(fams.flatMap(f => [document.fonts.load(`700 40px ${f}`), document.fonts.load(`400 40px ${f}`)])), new Promise(r => setTimeout(r, 4000))]); } catch { }
+  const [cols, rows] = SHEET_LAYOUTS[opt.per] || SHEET_LAYOUTS[9];
+  const pxH = Math.round(pxW * 297 / 210), mm = pxW / 210;
+  const c = document.createElement('canvas'); c.width = pxW; c.height = pxH;
+  const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, pxW, pxH);
+  const mg = 6 * mm, cw = (pxW - mg * 2) / cols, ch = (pxH - mg * 2) / rows, gap = opt.cut ? 2.2 * mm : 1.2 * mm;
+  const o = { meta, pal: sheetPalette(meta.cor), qr: qrModules(url), qrRects: [], vectorQR };
+  const msgs = opt.msgs;
+  for (let r = 0; r < rows; r++) for (let k = 0; k < cols; k++) {
+    o.msg = msgs[opt.alt && msgs[1] ? (r * cols + k) % 2 : 0];
+    drawSheetCard(ctx, mg + k * cw + gap, mg + r * ch + gap, cw - gap * 2, ch - gap * 2, o);
+  }
+  if (opt.cut) {                                              // linhas de corte tracejadas
+    ctx.strokeStyle = '#9aa0ab'; ctx.lineWidth = Math.max(1, .2 * mm); ctx.setLineDash([2 * mm, 1.4 * mm]);
+    ctx.beginPath();
+    for (let k = 0; k <= cols; k++) { const x = Math.round(mg + k * cw) + .5; ctx.moveTo(x, mg * .35); ctx.lineTo(x, pxH - mg * .35); }
+    for (let r = 0; r <= rows; r++) { const y = Math.round(mg + r * ch) + .5; ctx.moveTo(mg * .35, y); ctx.lineTo(pxW - mg * .35, y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  return { canvas: c, qrRects: o.qrRects, qr: o.qr, ink: o.pal.ink };
+}
+
+/* PDF mínimo: fundo em JPEG (300 dpi) + QR codes vetoriais por cima (nitidez máxima na impressão). */
+async function buildSheetPDF(meta, url, opt) {
+  const PX = 2480, PW = 595.28, PH = 841.89, k = PW / PX;
+  const { canvas, qrRects, qr, ink } = await renderSheet(meta, url, opt, PX, true);
+  const jpg = new Uint8Array(await (await new Promise(r => canvas.toBlob(r, 'image/jpeg', .93))).arrayBuffer());
+  canvas.width = canvas.height = 0;
+  const f = v => (+v.toFixed(3)).toString();
+  let cs = `q ${f(PW)} 0 0 ${f(PH)} 0 0 cm /Im0 Do Q\n${ink.map(v => f(v / 255)).join(' ')} rg\n`;
+  for (const q of qrRects) {
+    const c = q.cell * k, x0 = q.x * k, y0 = PH - q.y * k;
+    for (let r = 0; r < qr.n; r++) {
+      let s = -1;
+      for (let col = 0; col <= qr.n; col++) {
+        const d = col < qr.n && qr.dark(r, col);
+        if (d && s < 0) s = col;
+        if (!d && s >= 0) { cs += `${f(x0 + s * c)} ${f(y0 - (r + 1) * c)} ${f((col - s) * c)} ${f(c)} re\n`; s = -1; }
+      }
+    }
+  }
+  cs += 'f\n';
+  const pages = Math.max(1, Math.min(50, opt.pages | 0)), enc = new TextEncoder(), parts = [], offs = [];
+  let len = 0;
+  const push = b => { if (typeof b === 'string') b = enc.encode(b); parts.push(b); len += b.length; };
+  const obj = (n, body) => { offs[n] = len; push(`${n} 0 obj\n`); body(); push('\nendobj\n'); };
+  const firstPage = 5, kids = Array.from({ length: pages }, (_, i) => `${firstPage + i} 0 R`).join(' ');
+  push('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  obj(1, () => push(`<< /Type /Catalog /Pages 2 0 R >>`));
+  obj(2, () => push(`<< /Type /Pages /Kids [${kids}] /Count ${pages} >>`));
+  obj(3, () => { push(`<< /Type /XObject /Subtype /Image /Width ${PX} /Height ${Math.round(PX * 297 / 210)} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); push(jpg); push('\nendstream'); });
+  const csb = enc.encode(cs);
+  obj(4, () => { push(`<< /Length ${csb.length} >>\nstream\n`); push(csb); push('\nendstream'); });
+  for (let i = 0; i < pages; i++) obj(firstPage + i, () => push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${f(PW)} ${f(PH)}] /Resources << /XObject << /Im0 3 0 R >> >> /Contents 4 0 R >>`));
+  const n = firstPage + pages, xref = len;
+  push(`xref\n0 ${n}\n0000000000 65535 f \n` + offs.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join(''));
+  push(`trailer\n<< /Size ${n} /Root 1 0 R /Info << /Title (QR codes - envio de fotos) /Producer (FotoEvento) >> >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(parts, { type: 'application/pdf' });
+}
+
+function sheetModal(meta, url) {
+  const def = sheetDefaults(meta);
+  const opt = { per: 9, pages: 1, alt: true, cut: true, msgs: def.map(x => ({ ...x })) };
+  const msgFields = i => `<div class="sheet-msg"><b class="small">Mensagem ${i + 1}</b>
+    <input data-m="${i}" data-f="eyebrow" maxlength="40" placeholder="Chamada (opcional)" value="${esc(opt.msgs[i].eyebrow)}">
+    <input data-m="${i}" data-f="title" maxlength="48" placeholder="Título" value="${esc(opt.msgs[i].title)}">
+    <textarea data-m="${i}" data-f="desc" maxlength="150" rows="2" placeholder="Texto (opcional)">${esc(opt.msgs[i].desc)}</textarea>
+    <input data-m="${i}" data-f="btn" maxlength="28" placeholder="Botão (opcional)" value="${esc(opt.msgs[i].btn)}"></div>`;
+  const md = modal(`<div class="mhead"><h3 style="margin:0">QR codes para imprimir</h3><button class="icon-btn" data-close aria-label="Fechar">${ic('x')}</button></div>
+    <p class="muted small" style="margin:4px 0 16px">Folha A4 em PDF com vários cartões do QR code de <b>envio de fotos</b>. Imprima, recorte nas linhas tracejadas e entregue aos convidados.</p>
+    <div class="sheet-wrap"><div class="sheet-prev"><canvas id="shCv"></canvas></div>
+    <div class="sheet-opts">
+      <label class="f">Cartões por folha</label>
+      <div class="seg" id="shPer">${Object.keys(SHEET_LAYOUTS).map(n => `<button type="button" data-n="${n}" class="${+n === opt.per ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="field"><label class="f" for="shPg">Quantidade de folhas</label><input id="shPg" type="number" min="1" max="50" value="1" inputmode="numeric"><p class="hint" id="shTot"></p></div>
+      <label class="row" style="gap:10px;margin-bottom:10px;cursor:pointer"><input type="checkbox" id="shAlt" checked style="width:auto"> Alternar duas mensagens</label>
+      <label class="row" style="gap:10px;margin-bottom:6px;cursor:pointer"><input type="checkbox" id="shCut" checked style="width:auto"> Linhas de corte</label>
+    </div></div>
+    <details class="sheet-texts"><summary>Personalizar textos</summary>${msgFields(0)}<div id="shM2">${msgFields(1)}</div><button type="button" class="btn sm ghost" id="shReset">${ic('refresh', 15)} Restaurar textos</button></details>
+    <div class="row end" style="margin-top:18px;gap:8px"><button class="btn ghost" data-close>Cancelar</button><button class="btn" id="shGo">${ic('download', 16)} Baixar PDF</button></div>`, { wide: true });
+  const el = md.el, cv = $('#shCv', el);
+  let tm, seq = 0;
+  const preview = () => {
+    clearTimeout(tm);
+    tm = setTimeout(async () => {
+      const my = ++seq, w = Math.round(Math.min(330, el.querySelector('.sheet-prev').clientWidth || 330) * Math.min(2, devicePixelRatio || 1) * 1.15);
+      try {
+        const { canvas } = await renderSheet(meta, url, opt, w);
+        if (my !== seq) return;
+        cv.width = canvas.width; cv.height = canvas.height; cv.getContext('2d').drawImage(canvas, 0, 0);
+      } catch (e) { toast(e.message, 'err'); }
+    }, 180);
+  };
+  const totals = () => { $('#shTot', el).textContent = `${opt.pages * opt.per} cartões no total`; $('#shM2', el).style.display = opt.alt ? '' : 'none'; };
+  $('#shPer', el).onclick = e => { const b = e.target.closest('[data-n]'); if (!b) return; opt.per = +b.dataset.n; $$('#shPer button', el).forEach(x => x.classList.toggle('on', x === b)); totals(); preview(); };
+  $('#shPg', el).oninput = e => { opt.pages = Math.max(1, Math.min(50, parseInt(e.target.value) || 1)); totals(); };
+  $('#shAlt', el).onchange = e => { opt.alt = e.target.checked; totals(); preview(); };
+  $('#shCut', el).onchange = e => { opt.cut = e.target.checked; preview(); };
+  el.addEventListener('input', e => { const f = e.target.dataset.f; if (!f) return; opt.msgs[+e.target.dataset.m][f] = e.target.value.trim(); preview(); });
+  $('#shReset', el).onclick = () => { opt.msgs = sheetDefaults(meta); $$('[data-f]', el).forEach(i => { i.value = opt.msgs[+i.dataset.m][i.dataset.f]; }); preview(); };
+  $('#shGo', el).onclick = async () => {
+    const b = $('#shGo', el); if (b.disabled) return;
+    if (!opt.msgs[0].title || (opt.alt && !opt.msgs[1].title)) return toast('Preencha o título das mensagens.', 'err');
+    b.disabled = true; const old = b.innerHTML; b.innerHTML = 'Gerando PDF…';
+    try {
+      const blob = await buildSheetPDF(meta, url, opt);
+      saveBlob(blob, `qrcodes-envio-${slug(meta.nome)}-${opt.per}-por-folha.pdf`);
+      toast('PDF pronto para imprimir!', 'ok'); md.close(true);
+    } catch (e) { console.error(e); toast(e.message || 'Não foi possível gerar o PDF', 'err'); b.disabled = false; b.innerHTML = old; }
+  };
+  totals(); preview();
 }
 
 async function moderate(sync, act, file) {
@@ -2522,7 +2827,7 @@ function AdminAccount() {
     <section class="card pz-sec help"><h3>Como funciona</h3>
       <h4>1. Crie o evento</h4><p>Escolha o tipo (casamento, 15 anos…). O sistema já sugere modelo, cores e textos.</p>
       <h4>2. Envie o painel aos anfitriões</h4><p>No resumo do evento, o card <b>Painel dos noivos/debutante</b> tem o link (com botão de WhatsApp). Por ele os anfitriões enviam as fotos da prévia, escolhem a capa, personalizam o site e moderam fotos — você define o que eles podem fazer.</p>
-      <h4>3. Divulgue para os convidados</h4><p>Imprima a <b>placa com QR code de envio</b> para as mesas e compartilhe o <b>link do site</b>. Os convidados enviam fotos e recados pelo celular, sem instalar nada.</p>
+      <h4>3. Divulgue para os convidados</h4><p>Imprima a <b>placa com QR code de envio</b> para as mesas (ou use <b>Vários por folha (PDF)</b> para imprimir cartões A4 e entregar aos convidados) e compartilhe o <b>link do site</b>. Os convidados enviam fotos e recados pelo celular, sem instalar nada.</p>
       <h4>4. Durante a festa</h4><p>Abra o <b>Modo telão</b> numa TV ou projetor: as fotos e recados aparecem na hora, com o QR code no canto.</p>
       <h4>5. Depois</h4><p>Baixe tudo em ZIP (fotos separadas por álbum + arquivo com os recados). Feche os envios quando quiser.</p>
       <h4>Limites</h4><p>Cada foto de convidado é reduzida para até ~600 KB (prévias até ~900 KB). Cada Gist guarda até ${MAX_FILES_PER_GIST} itens; quando enche, o sistema cria outro automaticamente.</p></section></div>`;
